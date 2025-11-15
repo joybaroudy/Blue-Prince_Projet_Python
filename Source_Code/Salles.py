@@ -1,5 +1,5 @@
 import random
-
+from Inventory import Inventaire, ObjetPermanent, ObjetConsommable
 
 class Case:
     def __init__(self, coordinates):
