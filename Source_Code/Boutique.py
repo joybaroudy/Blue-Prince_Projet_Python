@@ -6,11 +6,16 @@ import random
 
 #  BOUTIQUES : achat d'objets avec les pièces d'or
 
-@dataclass
 class ArticleShop:
-    nom_affiche: str          # texte pour le joueur
-    prix: int                 # coût en pièces
-    action: Callable          # fonction(inventaire) -> applique l'effet
+    def __init__(self, nom_affiche: str, prix: int, action):
+        """
+        nom_affiche : str  → texte affiché dans le shop
+        prix        : int  → coût en pièces
+        action      : func → fonction(inventaire) appliquant l'effet de l'achat
+        """
+        self.nom_affiche = nom_affiche
+        self.prix = prix
+        self.action = action
 
     def acheter(self, inventaire) -> bool:
         """Tente d'acheter l'article avec l'inventaire donné."""
