@@ -830,7 +830,7 @@ class SalleManager:
 
         return tirage
 
-    def generer_salle_instance(self, coordonnees, salle_ID):
+    def generer_salle(self, coordonnees, salle_ID):
         """
         Créer un dictionnaire représentant l'instance de salle placée (portail/objets...).
         """
@@ -844,3 +844,6 @@ class SalleManager:
             "contenu": []  # objets générés plus tard
         }
         return instance
+    
+    def generer_contenu() :
+        # to complete
