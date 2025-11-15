@@ -3,7 +3,7 @@ import random
 from Salles import Salle, Case
 from Boutique import Boutique
 from Inventory import ObjetConsommable, ObjetPermanent, Nourriture 
-from Salles import Coffre, Casier, Digspot
+from Conteneurs import Coffre, Casier, Digspot
 
 
 class SalleManager:
