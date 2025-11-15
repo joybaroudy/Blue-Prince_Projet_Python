@@ -846,4 +846,5 @@ class SalleManager:
         return instance
     
     def generer_contenu() :
-        # to complete
+        pass
+    
