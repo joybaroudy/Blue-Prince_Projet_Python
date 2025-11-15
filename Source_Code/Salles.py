@@ -687,10 +687,14 @@ class Porte:
         self.ouvert = False
 
         proba_DT = 0.5 * (c / 9)  # proba d'avoir double-tour si cout==1
+
         if self.cout == 1:
             self.double_tour = random.choices([False, True], weights=[1 - proba_DT, proba_DT], k=1)[0]
             # niveau : 1 (locked) ou 2 (double tour), on encode via self.level
-            self.level = 2 if self.double_tour else 1
+            if self.double_tour :
+                self.level = 2 
+            else :
+                self.level = 1
         else:
             self.double_tour = False
             self.level = 0
@@ -741,7 +745,9 @@ class SalleManager:
         """
         # mapping pour match de porte : si ouverture depuis une porte côté p, la salle candidate doit
         # posséder la porte opposée.
-        # On suppose index: 0=N,1=E,2=S,3=W ; lorsque la porte ouverte est p, la salle candidate doit avoir p^2 (opposé)
+        # On suppose index: 0=N,1=E,2=S,3=W ; lorsque la porte ouverte a un index = p , 
+        # la salle candidate doit avoir index p opposé
+
         if porte_index == 0:
             porte_index_match = 2
         elif porte_index == 1:
@@ -753,13 +759,13 @@ class SalleManager:
 
         pool = []
         poids = []
-        facteur = 1.0
+        facteur = 1.0 # facteur à ajuster pdnt la periode de test
 
         for ID in self.catalogue.IDs:
             count = self.catalogue.salles_count_dict.get(ID)
             if count is None or count <= 0:
                 continue
-            portes = self.catalogue.salle_porte_emplacement_dict.get(ID, [False, False, False, False])
+            portes = self.catalogue.salle_porte_emplacement_dict.get(ID)
             if not portes[porte_index_match]:
                 continue
             # vérifier condition placement (Case doit être fourni par l'appelant, nous recevrons coordinates)
@@ -772,7 +778,7 @@ class SalleManager:
             # plus la rangée (coordonnees[1]) est élevée, plus le prix pèse (ex: coord[1]/9)
             poids_ID = 1.0 / (3 ** rarete) * (1 + facteur * (coordonnees[1] / 9) * prix)
             pool.append(ID)
-            poids.append(max(poids_ID, 0.000001))
+            poids.append(poids_ID)
 
         return pool, poids
 
@@ -801,18 +807,18 @@ class SalleManager:
         poids_norm = [p / total for p in poids_filtered]
 
         tirage = []
-        pool_tmp = pool_filtered.copy()
-        poids_tmp = poids_norm.copy()
+        pool_temp = pool_filtered.copy()
+        poids_temp = poids_norm.copy()
 
-        for _ in range(min(3, len(pool_tmp))):
-            choix = random.choices(pool_tmp, weights=poids_tmp, k=1)[0]
+        for _ in range(min(3, len(pool_temp))):
+            choix = random.choices(pool_temp, weights=poids_temp, k=1)[0]
             tirage.append(choix)
-            idx = pool_tmp.index(choix)
-            pool_tmp.pop(idx)
-            poids_tmp.pop(idx)
-            if poids_tmp:
-                s = sum(poids_tmp)
-                poids_tmp = [p / s for p in poids_tmp]
+            idx = pool_temp.index(choix)
+            pool_temp.pop(idx)
+            poids_temp.pop(idx)
+            if poids_temp:
+                s = sum(poids_temp)
+                poids_temp = [p / s for p in poids_temp]
 
         # s'assurer d'avoir au moins une salle avec prix==0 si on est sur la première rangée (col==1)
         if coordonnees[1] == 1:
