@@ -164,3 +164,26 @@ class Inventaire:
         else:
             self.objets_permanents[nom] = ObjetPermanent(nom, obtenu=True)
 
+
+
+    def solde_pieces(self):
+        """Retourne le nombre actuel de pièces d'or."""
+        return self.objets_consommables["Pièces"].quantite
+
+    def ajouter_pieces(self, n: int):
+        """Ajoute n pièces (ou en enlève si n < 0)."""
+        if n == 0:
+            return
+        self.objets_consommables["Pièces"].changer_solde(n)
+
+    def depenser_pieces(self, n: int) -> bool:
+        """
+        Tente de dépenser n pièces.
+        Renvoie True si le paiement a réussi, False sinon.
+        """
+        if n < 0:
+            return False
+        if self.solde_pieces() >= n:
+            self.objets_consommables["Pièces"].changer_solde(-n)
+            return True
+        return False
