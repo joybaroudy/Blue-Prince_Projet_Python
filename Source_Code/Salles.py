@@ -1,13 +1,32 @@
 import random
 
-class Salle :
+
+class Case:
+    def __init__(self, coordinates):
+        """
+        coordinates : [row, col] (1-indexed dans ton code d'origine).
+        position : "Corner" / "Edge" / "Normal"
+        """
+        self.coordinates = coordinates
+        r, c = coordinates
+        # coins : (1,1), (1,5), (9,1), (9,5) selon ton ancien code (5x9 grid)
+        if coordinates in ([1,1], [1,5], [9,1], [9,5]):
+            self.position = "Corner"
+        elif r == 1 or r == 9 or c == 1 or c == 5:
+            self.position = "Edge"
+        else:   
+            self.position = "Normal"
+
+class Salle:
     """
-    Classe repsentant les salles dans le manoir
+    Contient les dictionnaires de données des salles (names, rarete, count, price, conditions...).
+    Chaque instance de Salle représente *le catalogue / données*.
+    Pour une salle placée dans la grille on utilisera une autre structure (RoomInstance si besoin).
     """
-    def __init__(self) :
+    def __init__(self):
 
         # Attribution du nom de la salle à son identidiant
-        salles_names_dict = {
+        self.salles_names_dict = {
 
             "ID1" : "The Foundation",
             "ID2" : "Entrance Hall",
@@ -96,8 +115,7 @@ class Salle :
             "ID85" : "Furnace"
             }
 
-
-        salles_rarete_dict = {
+        self.salles_rarete_dict = {
             "ID1" : 3,
             "ID2" : None,
             "ID3" : 0,
@@ -186,7 +204,7 @@ class Salle :
         }
 
         # Initialisation du nombre initial des salles
-        salles_count_dict = {
+        self.salles_count_dict = {
             "ID1" : 2,
             "ID2" : None,
             "ID3" : 10,
@@ -274,10 +292,9 @@ class Salle :
             "ID85" : 2
         }
 
-
         # Attribution du prix des salles 
 
-        salles_price_dict = { #gem
+        self.salles_price_dict = { #gem
             "ID 1" : 0,
             "ID 2" : 0,
             "ID 3" : 0,
@@ -365,7 +382,7 @@ class Salle :
             "ID 85" : 0
         }
 
-        salles_conditions_dict = {
+        self.salles_conditions_dict = {
             "ID1" : "Not Edge",
             "ID2" : None,
             "ID3" : "Normal",
@@ -453,98 +470,96 @@ class Salle :
             "ID85" : "Furnace"
         }
 
-        salle_porte_emplacement_dict = {
-            "ID 1" : [True, True, False , True],
-            "ID 2" : [False, True, True, True],
-            "ID 3" : [True, False, True, False],
-            "ID 4" : [True, True, False, False],
-            "ID 5" : [True, True, False, False],
-            "ID 6" : [True, True, False, False],
-            "ID 7" : [True, False, True, False],
-            "ID 8" : [True, True, False, False],
-            "ID 9" : [True, False, False, False],
-            "ID 10" : [True, False, False, False],
-            "ID 11" : [True, False, False, False],
-            "ID 12" : [True, False, False, False],
-            "ID 13" : [True, True, False, False],
-            "ID 14" : [True, False, False, False],
-            "ID 15" : [True, True, False, False],
-            "ID 16" : [True, False, True, False],
-            "ID 17" : [True, True, False, True],
-            "ID 18" : [True, False, False, False],
-            "ID 19" : [True, True, False, False],
-            "ID 20" : [True, False, True, False],
-            "ID 21" : [True, True, False, False],
-            "ID 22" : [True, False, True, False],
-            "ID 23" : [True, False, False, False],
-            "ID 24" : [True, True, False, False],
-            "ID 25" : [True, True, False, True],
-            "ID 26" : [True, False, False, False],
-            "ID 27" : [True, True, False, False],
-            "ID 28" : [True, False, False, False],
-            "ID 29" : [True, True, False, True],
-            "ID 30" : [True, False, True, False],
-            "ID 31" : [True, False, False, False],
-            "ID 32" : [True, True, False, True],
-            "ID 33" : [True, True, False, False],
-            "ID 34" : [True, True, False, True],
-            "ID 35" : [True, False, True, False],
-            "ID 36" : [True, True, False, False],
-            "ID 37" : [True, False, False, False],
-            "ID 38" : [True, False, False, False],
-            "ID 39" : [True, False, False, False],
-            "ID 40" : [True, False, False, False],
-            "ID 41" : [True, True, False, True],
-            "ID 42" : [True, True, False, False],
-            "ID 43" : [True, True, False, True],
-            "ID 44" : [True, True, False, True],
-            "ID 45" : [True, True, True, True],
-            "ID 46" : [True, True, False, False],
-            "ID 47" : [True, True, False, False],
-            "ID 48" : [True, False, False, False],
-            "ID 49" : [True, False, False, False],
-            "ID 50" : [True, False, False, False],
-            "ID 51" : [True, False, False, False],
-            "ID 52" : [True, False, False, False],
-            "ID 53" : [True, False, False, False],
-            "ID 54" : [True, True, False, True],
-            "ID 55" : [True, True, False, True],
-            "ID 56" : [True, True, False, True],
-            "ID 57" : [True, False, True, False],
-            "ID 58" : [True, True, True, True],
-            "ID 59" : [True, False, False, False],
-            "ID 60" : [True, False, True, False],
-            "ID 61" : [True, False, False, False],
-            "ID 62" : [True, False, False, False],
-            "ID 63" : [True, True, False, False],
-            "ID 64" : [True, True, False, True],
-            "ID 65" : [True, True, True, True],
-            "ID 66" : [True, False, True, False],
-            "ID 67" : [True, False, False, False],
-            "ID 68" : [True, True, False, False],
-            "ID 69" : [True, True, False, True],
-            "ID 70" : [True, True, False, False],
-            "ID 71" : [True, True, False, False],
-            "ID 72" : [True, False, False, False],
-            "ID 73" : [True, False, True, False],
-            "ID 74" : [True, False, False, False],
-            "ID 75" : [True, True, False, False],
-            "ID 76" : [True, True, False, False],
-            "ID 77" : [True, True, False, True],
-            "ID 78" : [True, False, False, False],
-            "ID 79" : [True, True, False, True],
-            "ID 80" : [True, True, False, False],
-            "ID 81" : [True, True, True, True],
-            "ID 82" : [True, True, False, True],
-            "ID 83" : [True, True, False, True],
-            "ID 84" : [True, True, True, True],
-            "ID 85" : [True, False, False, False]
-
-
+        self.salle_porte_emplacement_dict = {
+            "ID1" : [True, True, False , True],
+            "ID2" : [False, True, True, True],
+            "ID3" : [True, False, True, False],
+            "ID4" : [True, True, False, False],
+            "ID5" : [True, True, False, False],
+            "ID6" : [True, True, False, False],
+            "ID7" : [True, False, True, False],
+            "ID8" : [True, True, False, False],
+            "ID9" : [True, False, False, False],
+            "ID10" : [True, False, False, False],
+            "ID11" : [True, False, False, False],
+            "ID12" : [True, False, False, False],
+            "ID13" : [True, True, False, False],
+            "ID14" : [True, False, False, False],
+            "ID15" : [True, True, False, False],
+            "ID16" : [True, False, True, False],
+            "ID17" : [True, True, False, True],
+            "ID18" : [True, False, False, False],
+            "ID19" : [True, True, False, False],
+            "ID20" : [True, False, True, False],
+            "ID21" : [True, True, False, False],
+            "ID22" : [True, False, True, False],
+            "ID23" : [True, False, False, False],
+            "ID24" : [True, True, False, False],
+            "ID25" : [True, True, False, True],
+            "ID26" : [True, False, False, False],
+            "ID27" : [True, True, False, False],
+            "ID28" : [True, False, False, False],
+            "ID29" : [True, True, False, True],
+            "ID30" : [True, False, True, False],
+            "ID31" : [True, False, False, False],
+            "ID32" : [True, True, False, True],
+            "ID33" : [True, True, False, False],
+            "ID34" : [True, True, False, True],
+            "ID35" : [True, False, True, False],
+            "ID36" : [True, True, False, False],
+            "ID37" : [True, False, False, False],
+            "ID38" : [True, False, False, False],
+            "ID39" : [True, False, False, False],
+            "ID40" : [True, False, False, False],
+            "ID41" : [True, True, False, True],
+            "ID42" : [True, True, False, False],
+            "ID43" : [True, True, False, True],
+            "ID44" : [True, True, False, True],
+            "ID45" : [True, True, True, True],
+            "ID46" : [True, True, False, False],
+            "ID47" : [True, True, False, False],
+            "ID48" : [True, False, False, False],
+            "ID49" : [True, False, False, False],
+            "ID50" : [True, False, False, False],
+            "ID51" : [True, False, False, False],
+            "ID52" : [True, False, False, False],
+            "ID53" : [True, False, False, False],
+            "ID54" : [True, True, False, True],
+            "ID55" : [True, True, False, True],
+            "ID56" : [True, True, False, True],
+            "ID57" : [True, False, True, False],
+            "ID58" : [True, True, True, True],
+            "ID59" : [True, False, False, False],
+            "ID60" : [True, False, True, False],
+            "ID61" : [True, False, False, False],
+            "ID62" : [True, False, False, False],
+            "ID63" : [True, True, False, False],
+            "ID64" : [True, True, False, True],
+            "ID65" : [True, True, True, True],
+            "ID66" : [True, False, True, False],
+            "ID67" : [True, False, False, False],
+            "ID68" : [True, True, False, False],
+            "ID69" : [True, True, False, True],
+            "ID70" : [True, True, False, False],
+            "ID71" : [True, True, False, False],
+            "ID72" : [True, False, False, False],
+            "ID73" : [True, False, True, False],
+            "ID74" : [True, False, False, False],
+            "ID75" : [True, True, False, False],
+            "ID76" : [True, True, False, False],
+            "ID77" : [True, True, False, True],
+            "ID78" : [True, False, False, False],
+            "ID79" : [True, True, False, True],
+            "ID80" : [True, True, False, False],
+            "ID81" : [True, True, True, True],
+            "ID82" : [True, True, False, True],
+            "ID83" : [True, True, False, True],
+            "ID84" : [True, True, True, True],
+            "ID85" : [True, False, False, False]
 
         }
 
-        salle_couleur_dict = {
+        self.salle_couleur_dict = {
 
             # Blue
             "ID1" : "Blue",
@@ -644,133 +659,182 @@ class Salle :
             "ID85" : "Red"
         }
 
-        self.IDs = list(self.salles_names_dict.keys())
+        # Liste d'IDs disponibles 
+        self.IDs = [k for k in self.salles_names_dict.keys()]
+
+    def peut_etre_placee(self, ID, case: Case):
+        cond = self.salles_conditions_dict.get(ID)
+        if cond is None:
+            return True
+        if cond == "Not Edge":
+            return case.position != "Edge" and case.position != "Corner"
+        return cond == case.position
 
 
-class Case : 
-    def _init_(self,coordinates) : 
-        self.coordinates = coordinates
-        if coordinates == [1,1] or coordinates == [1,5] or coordinates == [9,1] or coordinates == [9,5] : 
-            self.position = "Corner"
-        elif coordinates[0] == 1 or coordinates[0] == 9 or coordinates[1] == 1 or coordinates[1] == 5 : 
-            self.position = "Edge"
-        else : 
-            self.position = "Normal"
-
-
-class Porte(Salle) : 
+class Porte:
     """
-    Classe pour les portes et leur methodes
+    Porte : statut verrouillage 0/1/2 (0=open, 1=locked, 2=double lock)
+    Ne doit PAS hériter de Salle.
     """
-
-    def __init__(self, coordonnees) : 
-        weight_cout_0 = 1 * (1 - (coordonnees[1]/9)) # Probabilité que le cout soit 0
-        weight_cout_1 = 1 * ((coordonnees[1]/9)) # Probabilité que le coup soit 1
-        
+    def __init__(self, coordonnees):
+        # coordonnees : [row, col] 
+        r, c = coordonnees
+        # probabilité de cout 0 diminue quand on monte dans le manoir (col plus élevé)
+        weight_cout_0 = 1 * (1 - (c / 9))
+        weight_cout_1 = 1 * (c / 9)
         cout = random.choices([0, 1], weights=[weight_cout_0, weight_cout_1], k=1)[0]
-
-        self.cout = cout
+        self.cout = cout  # 0 ou 1 ; si 1 il faudra une clé (ou kit crochetage si level 1)
         self.ouvert = False
 
-        proba_DT = 0.3*(coordonnees[1]/9)
+        proba_DT = 0.5 * (c / 9)  # proba d'avoir double-tour si cout==1
+        if self.cout == 1:
+            self.double_tour = random.choices([False, True], weights=[1 - proba_DT, proba_DT], k=1)[0]
+            # niveau : 1 (locked) ou 2 (double tour), on encode via self.level
+            self.level = 2 if self.double_tour else 1
+        else:
+            self.double_tour = False
+            self.level = 0
 
-        if self.cout == 1 :
-            self.double_tour = random.choices([False, True], weights=[1-proba_DT, proba_DT ], k=1)[0]
-        else : 
-            self.double_tour = False 
-    
-    def OuvrirPorte(self, inventaire) : 
-        if inventaire.objets_permanents["Lockpick Kit"] == True : 
-            self.ouvert = True
-        elif inventaire.objets_consommables["Clés"] < self.cout and self.ouvert == True : 
-            inventaire.objets_consommables["Clés"].changer_solde(self.cout)
-            self.ouvert = True
-
-
-class Traitement_Salle(Case, Salle) : 
-
-    def __init__(self,salles_liste) :
-        self.salles_liste = salles_liste
-
-    def Condition_Met(self, ID, case) : # MEthode OBSOLETE A REVOIR !!!!!!!!!!!! NE PRends pas en comptes BCP DE facteurs
-        condition_met = False
-        if self.salles_conditions_dict[ID] == case.position : 
-            condition_met = True
-        return condition_met
-
-    def Pooling_salle(self, coordonnees, porte_index) :
+    def ouvrir_porte(self, inventaire: Inventaire):
         """
-        Mehtode qui cree une base de salle dont on pourra tirer 3 salle au sort
+        Tentative d'ouverture:
+        - si kit de crochetage obtenu et level == 1 -> ouvre
+        - sinon si clés suffisantes -> dépense
+        - sinon si level == 0 -> ouvre gratuitement
         """
+        if self.ouvert:
+            return True
 
-        if porte_index == 0 : 
+        if self.level == 0:
+            self.ouvert = True
+            return True
+
+        # level 1 ou 2
+        kit = inventaire.objets_permanents["Lockpick Kit"]
+        if self.level == 1 and isinstance(kit, ObjetPermanent) and kit.obtenu:
+            self.ouvert = True
+            return True
+
+        # sinon tenter avec clés
+        if inventaire.objets_consommables["Clés"].quantite >= self.cout:
+            inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
+            self.ouvert = True
+            return True
+
+        return False
+
+class SalleManager:
+    """
+    Classe qui gère le tirage / pool des salles à proposer lors de l'ouverture d'une porte.
+    Utilise les données de la classe Salle (catalogue).
+    """
+    def __init__(self, salle_catalogue: Salle):
+        self.catalogue = salle_catalogue
+
+    def pooling_salle(self, coordonnees, porte_index):
+        """
+        Retourne pool (IDs) et poids (probabilities) selon :
+         - count > 0
+         - la salle a une porte correspondante (porte_index_match)
+         - condition de placement (bord/normal/...): utilise peut_etre_placee()
+         - poids dépend de rareté et du prix (gemmes) et de la rangée (coordonnees[1])
+        """
+        # mapping pour match de porte : si ouverture depuis une porte côté p, la salle candidate doit
+        # posséder la porte opposée.
+        # On suppose index: 0=N,1=E,2=S,3=W ; lorsque la porte ouverte est p, la salle candidate doit avoir p^2 (opposé)
+        if porte_index == 0:
             porte_index_match = 2
-        elif porte_index == 1 :
+        elif porte_index == 1:
             porte_index_match = 3
-        elif porte_index == 2 :
+        elif porte_index == 2:
             porte_index_match = 0
-        else : 
+        else:
             porte_index_match = 1
 
         pool = []
-        probabilites = []
-        facteur = 1 # Variable à ajuster durant les test
+        poids = []
+        facteur = 1.0
 
-        for ID in self.IDs : 
-            if self.salles_count_dict[ID] > 0 : 
-                if self.salle.emplacement_porte[ID][porte_index_match] == True :
-                    if self.salle.Condition_Met(ID,coordonnees) :
-                        
-                        poids =  1/(3**self.salles_rarete_dict[ID]) * (1 + facteur*(coordonnees[1]/9)*self.salles_price_dict[ID])
+        for ID in self.catalogue.IDs:
+            count = self.catalogue.salles_count_dict.get(ID)
+            if count is None or count <= 0:
+                continue
+            portes = self.catalogue.salle_porte_emplacement_dict.get(ID, [False, False, False, False])
+            if not portes[porte_index_match]:
+                continue
+            # vérifier condition placement (Case doit être fourni par l'appelant, nous recevrons coordinates)
+            # ici nous ne connaissons pas la case; on laisse la validation à l'appelant via peut_etre_placee()
+            # mais on ajoute le poids:
+            rarete = self.catalogue.salles_rarete_dict.get(ID)
+            if rarete is None:
+                rarete = 0
+            prix = self.catalogue.salles_price_dict.get(ID, 0)
+            # plus la rangée (coordonnees[1]) est élevée, plus le prix pèse (ex: coord[1]/9)
+            poids_ID = 1.0 / (3 ** rarete) * (1 + facteur * (coordonnees[1] / 9) * prix)
+            pool.append(ID)
+            poids.append(max(poids_ID, 0.000001))
 
-                    pool.append(ID)
-                    probabilites.append(poids)
-        salle_pool = [pool,probabilites]   
-        return salle_pool
+        return pool, poids
 
-    def Tirage_salle(self, coordonnees) : 
-        """ 
-        Methode qui tire au sort 3 salles à montrer apres ouvire une porte,  
-        dependement des probabilités de tirer une salle specifique et 
-        et du poids de tirer cette salle à une rangée donnée dans le manoir
-        
-        salle_pool est une matrice de dimension 2*Nb de salles dont la première 
-        colonne est le type de la salle et la deuxieme est la probabilité de la tirer 
+    def tirage_salles(self, coordonnees, porte_index, case_obj: Case):
         """
+        Tire 3 salles en respectant:
+         - filtrage par condition de placement (case_obj)
+         - renormalisation des poids
+         - s'assure qu'au moins une salle gratuite (price == 0) si coordonnees[1] == 1
+        """
+        pool, poids = self.pooling_salle(coordonnees, porte_index)
 
-        pool, poids = self.Pooling_salle(coordonnees)
-        total_poids = sum(poids)
-        poids_norm = [p / total_poids for p in poids] # Normalisation des probabilités de tirage
+        # filtrer pool par condition de placement
+        pool_filtered = []
+        poids_filtered = []
+        for ID, p in zip(pool, poids):
+            if self.catalogue.peut_etre_placee(ID, case_obj):
+                pool_filtered.append(ID)
+                poids_filtered.append(p)
+
+        if not pool_filtered:
+            return []
+
+        # normaliser
+        total = sum(poids_filtered)
+        poids_norm = [p / total for p in poids_filtered]
 
         tirage = []
+        pool_tmp = pool_filtered.copy()
+        poids_tmp = poids_norm.copy()
 
-        for i in range(0,3):
-            salle_tiree = random.choices(pool, weights=poids_norm, k=1)[0]
-            tirage.append(salle_tiree)
+        for _ in range(min(3, len(pool_tmp))):
+            choix = random.choices(pool_tmp, weights=poids_tmp, k=1)[0]
+            tirage.append(choix)
+            idx = pool_tmp.index(choix)
+            pool_tmp.pop(idx)
+            poids_tmp.pop(idx)
+            if poids_tmp:
+                s = sum(poids_tmp)
+                poids_tmp = [p / s for p in poids_tmp]
 
-            index = pool.index(salle_tiree)
-            pool.pop(index)
-            poids.pop(index)
-
-            total_poids = sum(poids_norm)
-            poids_norm = [p / total_poids for p in poids_norm] # Renormalisation des probabilités de tirage
-        
-        if coordonnees[1] == 1 and not (self.salles_price_dict(tirage[0] == 0) or self.salles_price_dict(tirage[1] == 0) or self.salles_price_dict(tirage[2] == 0)) :
-
-            pool_free = []
-            
-            for ID in pool : 
-                if self.salles_price_dict[ID] == 0 : 
-                    pool_free.append(ID)
-
-            tirage[0] = random.choice(pool_free)
+        # s'assurer d'avoir au moins une salle avec prix==0 si on est sur la première rangée (col==1)
+        if coordonnees[1] == 1:
+            if not any(self.catalogue.salles_price_dict.get(ID, 0) == 0 for ID in tirage):
+                # trouver candidates gratuites encore dans pool_filtered
+                pool_free = [ID for ID in pool_filtered if self.catalogue.salles_price_dict.get(ID, 0) == 0]
+                if pool_free:
+                    tirage[0] = random.choice(pool_free)
 
         return tirage
 
-    def Generation_salle (coordonnes, salle_ID) : 
-        """"
-        Methode qui a pour but de creer la salle et de generer les objets à l'interieur
+    def generer_salle_instance(self, coordonnees, salle_ID):
         """
-        
-
-
+        Créer un dictionnaire représentant l'instance de salle placée (portail/objets...).
+        """
+        instance = {
+            "ID": salle_ID,
+            "name": self.catalogue.salles_names_dict.get(salle_ID),
+            "color": self.catalogue.salle_couleur_dict.get(salle_ID),
+            "price": self.catalogue.salles_price_dict.get(salle_ID),
+            "portes": self.catalogue.salle_porte_emplacement_dict.get(salle_ID),
+            "effect": self.catalogue.salles_conditions_dict.get(salle_ID),
+            "contenu": []  # objets générés plus tard
+        }
+        return instance

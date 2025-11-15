@@ -1,40 +1,22 @@
 import random
 
-class Case : 
-    def __init__(self,coordinates) : 
-        self.coordinates = coordinates
-        if coordinates == [1,1] or coordinates == [1,5] or coordinates == [9,1] or coordinates == [9,5] : 
-            self.position = "Corner"
-        elif coordinates[0] == 1 or coordinates[0] == 9 or coordinates[1] == 1 or coordinates[1] == 5 : 
-            self.position = "Edge"
-        else : 
-            self.position = "Normal"
-
-
-class Objet: # To check if we keep it 
-    """
-    Classe de base pour tout objet du jeu.
-    """
-    def __init__(self, nom = None):
+class Objet:
+    """Classe de base pour tout objet du jeu."""
+    def __init__(self, nom=None):
         self.nom = nom
 
 class ObjetConsommable(Objet):
-    """
-    Classe pour les objets consommables (pas, pièces, clés, etc.)
-    """
+    """Objets consommables (Pas, Pièces, Gemmes, Clés, Dés)."""
     def __init__(self, nom, quantite=0):
         super().__init__(nom)
         self.quantite = quantite
 
     def changer_solde(self, changement):
-        """ 
-        Methode qui aumente ou diminue la quantité d'item consommables dans l'inventaire 
-        quand ils sont utilisés ou obtenus
-        """
+        """Augmente ou diminue la quantité."""
         self.quantite = self.quantite + changement
-
+        
 class ObjetPermanent(Objet):
-    """Classe pour les objets permanents (Hammer, Shovel, etc.)"""
+    """Objet permanent (Shovel, Hammer, etc.)."""
     def __init__(self, nom, obtenu=False):
         super().__init__(nom)
         self.obtenu = obtenu
@@ -43,9 +25,7 @@ class ObjetPermanent(Objet):
         self.obtenu = True
 
 class Nourriture(Objet):
-    """
-    Classe pour les objets nourriture (qui augmentent les pas), et leur methodes
-    """
+    """Nourriture - donne des pas."""
     def __init__(self, nom, gain):
         super().__init__(nom)
         self.gain = gain
@@ -53,74 +33,100 @@ class Nourriture(Objet):
     def consommer(self, inventaire):
         inventaire.objets_consommables["Pas"].changer_solde(self.gain)
 
-class casier(Objet) : 
+class Casier(Objet):
     """
-    Classe pour les portes et leur methodes
+    Casier : peut être ouvert avec une clé (coût 1 par défaut).
+    Contenu généré aléatoirement.
     """
-    def __init__(self, contenu = None) :
-
+    def __init__(self, contenu=None):
+        super().__init__("Casier")
         self.cout = 1
         self.ouvert = False
-        self.contenu = contenu
+        self.contenu = contenu  # None ou liste d'objets
 
-    def OuvrirCasier(self, inventaire) : 
-        if inventaire.objets_consommables["Clés"] < self.cout and self.ouvert == False : 
-            inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
-            self.ouvert = True
-    
-    def ContenuCasier(self, inventaire) : 
+    def ouvrir_casier(self, inventaire):
+        """
+        Ouvre le casier s'il y a assez de clés et s'il n'est pas déjà ouvert.
+        """
+        if not self.ouvert:
+            if inventaire.objets_consommables["Clés"].quantite >= self.cout:
+                inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
+                self.ouvert = True
+                return True
+            else:
+                return False
+        return False
+
+    def generer_contenu(self):
+        """
+        Génère le contenu du casier : nombre d'objets (probabilités).
+        Retourne une liste d'éléments (ex: ["Pièces", "Clés", "Pomme"])
+        """
         nb_possible = [0,1,2,3,4,5]
         probas = [0.05, 0.23, 0.3, 0.2, 0.1, 0.05]
         nb_obj = random.choices(nb_possible, weights=probas, k=1)[0]
-        # To add contenu du casier
+
+        contenu = []
+        # exemple simple : 50% pièces, 20% clés, 20% nourriture, 10% rien (à améliorer)
+        for _ in range(nb_obj):
+            r = random.random()
+            if r < 0.5:
+                contenu.append(("Pièces", random.randint(1, 20)))
+            elif r < 0.7:
+                contenu.append(("Clés", 1))
+            else:
+                contenu.append(("Pomme", 1))  # ou autre nourriture
+        self.contenu = contenu
+        return contenu
 
 
-class Coffre(Objet) : 
+class Coffre(Objet):
     """
-    Classe pour les coffre et leur methodes
+    Coffre : peut être ouvert avec une clé ou un marteau.
     """
-    def __init__(self) : 
+    def __init__(self):
+        super().__init__("Coffre")
         self.cout = 1
         self.ouvert = False
-    
-    def OuvrirCoffre(self, inventaire) : 
-        if inventaire.objets_permanents["Hammer"] == True : 
+        self.contenu = None
+
+    def ouvrir_coffre(self, inventaire):
+        """
+        Ouvre le coffre si joueur a marteau (obtenu=True) ou assez de clés.
+        """
+        if self.ouvert:
+            return False
+
+        hammer = inventaire.objets_permanents["Hammer"]
+        if isinstance(hammer, ObjetPermanent) and hammer.obtenu:
             self.ouvert = True
-        elif inventaire.objets_consommables["Clés"] > self.cout and self.ouvert == False : 
+            return True
+        elif inventaire.objets_consommables["Clés"].quantite >= self.cout:
             inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
             self.ouvert = True
+            return True
+        else:
+            return False
 
-
+    def generer_contenu(self):
+        """
+        Génère le contenu du coffre (ex: pièces, gemmes, objet permanent rare...).
+        """
+        choix = random.random()
+        if choix < 0.5:
+            # pièces
+            self.contenu = [("Pièces", random.randint(10, 40))]
+        elif choix < 0.8:
+            self.contenu = [("Gemmes", 1)]
+        else:
+            # petit chance d'avoir un objet permanent (ex: Metal Detector)
+            self.contenu = [("Metal Detector", 1)]
+        return self.contenu
 
 class Inventaire:
     """
-    Class contenant tous les items (permanents et non permanents) dans l'inventaire,  
-    ainsi que les classes et methodes associées.
-
-    L'inventaire contient : 
-        
-        Objets consommables : 
-            Pas (Qui diminuent à chaque fois que le jouer change de pièce)
-            Pièces (Qui sont utilisées pour être échangées contre d'autres objet)
-            Gemmes (Qui sont utilisés pour debloquer certaines salles)
-            Clés (Qui permettent d'ouvrir certaines portes et corffres)
-            Dés (Qui permettent de tirer à nouveau au sort les pièces proposées apres ouverture de porte)
-
-        Objets permanents : 
-            Shovel (Qui permet de creuser pour trouver certains items)
-            Hammer (Qui permet d'ouvrir des coffres sans utiliser des clés)
-            Lockpick Kit (Qui permet d'ouvrir certaines portes sans utiliser de clés)
-            Metal Detector (Qui augmente la chance de trouver des clés et des pièces)
-            Lucky Rabbit's Foot (Qui augmente la chance de trouver des items dans le manoir(objets permanents inclus))
-
-        Autres objets : 
-            Pomme (Qui redonne 2 pas)
-            Banane (Qui redonne 3 pas)
-            Gâteau (Qui redonne 10 pas)
-            Sandwich (Qui redonne 15 pas)
-            Repas (Qui redonne 25 pas)
+    Stocke objets consommables, permanents, nourritures.
     """
-
     def __init__(self):
         self.objets_consommables = {
             "Pas": ObjetConsommable("Pas", 70),
@@ -131,11 +137,11 @@ class Inventaire:
         }
 
         self.objets_permanents = {
-            "Shovel": ObjetPermanent("Shovel"),
-            "Hammer": ObjetPermanent("Hammer"),
-            "Lockpick Kit": ObjetPermanent("Lockpick Kit"),
-            "Metal Detector": ObjetPermanent("Metal Detector"),
-            "Lucky Rabbit Foot": ObjetPermanent("Lucky Rabbit's Foot")
+            "Shovel": ObjetPermanent("Shovel", obtenu=False),
+            "Hammer": ObjetPermanent("Hammer", obtenu=False),
+            "Lockpick Kit": ObjetPermanent("Lockpick Kit", obtenu=False),
+            "Metal Detector": ObjetPermanent("Metal Detector", obtenu=False),
+            "Lucky Rabbit Foot": ObjetPermanent("Lucky Rabbit Foot", obtenu=False)
         }
 
         self.nourritures = {
@@ -146,44 +152,15 @@ class Inventaire:
             "Repas": Nourriture("Repas", 25)
         }
 
+    def ajouter_objet_consommable(self, nom, quantite):
+        if nom in self.objets_consommables:
+            self.objets_consommables[nom].changer_solde(quantite)
+        else:
+            self.objets_consommables[nom] = ObjetConsommable(nom, quantite)
 
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def debloquer_permanent(self, nom):
+        if nom in self.objets_permanents:
+            self.objets_permanents[nom].debloquer()
+        else:
+            self.objets_permanents[nom] = ObjetPermanent(nom, obtenu=True)
 
