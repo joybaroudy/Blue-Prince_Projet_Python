@@ -1,5 +1,5 @@
 import random
-from Objets import Objet, ObjetConsommable, ObjetPermanent, Nourriture
+# from Objets import Objet, ObjetConsommable, ObjetPermanent, Nourritur
 
 class Inventaire:
     """
