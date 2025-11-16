@@ -21,17 +21,17 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
 
             #Si une des touches de déplacement est appuyé
             if direction:
-                #On enregistre la position actuelle du joueur
-                x_actu, y_actu=joueur.x,joueur.y
+                #On enregistre l'ancienne position du joueur
+                x_old, y_old=joueur.x,joueur.y
 
                 if direction=="gauche":
-                    new_pos=(x_actu-60,y_actu)
+                    new_pos=(x_old-60,y_old)
                 elif direction=="droite":
-                    new_pos=(x_actu+60,y_actu)
+                    new_pos=(x_old+60,y_old)
                 elif direction=="haut":
-                    new_pos=(x_actu,y_actu-60)
+                    new_pos=(x_old,y_old-60)
                 elif direction=="bas":
-                    new_pos=(x_actu,y_actu+60)
+                    new_pos=(x_old,y_old+60)
                 
                 #Vérifie si la salle existe déjà sur le plateau
                 if new_pos in plateau:
@@ -51,25 +51,20 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                         print("Tirage effectuee à ({direction})", tirage)
                         tirage_effectuee=True
                         direction_choisi=direction
+                        gerer_clavier.index_selection=0
                     else:
                         print("Aucun tirage")
 
         elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
-            choix=None
             if evenement.key==pygame.K_q:
-                 choix=0
-            elif evenement.key==pygame.K_s:
-                choix=1
+                gerer_clavier.index_selection=(gerer_clavier.index_selection-1)%len(salle_selectionnee)
             elif evenement.key==pygame.K_d:
-                choix=2
-
-            if choix is not None and salle_selectionnee and choix<len(salle_selectionnee):
+                gerer_clavier.index_selection=(gerer_clavier.index_selection+1)%len(salle_selectionnee)
+            elif evenement.key==pygame.K_RETURN: #Entrée pour confirmé la salle
+                choix=gerer_clavier.index_selection
                 salle_choisie=salle_selectionnee[choix]
                 nom_salle=salle_catalogue.salles_names_dict.get(salle_choisie,"Inconnue")
                 print(f"Salle choisie : {salle_choisie} ({nom_salle})")
-
-                #On enregistre l'ancienne position du joueur
-                x_old, y_old=joueur.x,joueur.y
 
                 if direction_choisi=="gauche":
                     joueur.deplacement(-1,0)
@@ -90,5 +85,6 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                 salle_selectionnee=None
                 tirage_effectuee=False
                 direction_choisi=None
+                gerer_clavier.index_selection=0
     
     return continuer,salle_selectionnee,tirage_effectuee, direction_choisi
