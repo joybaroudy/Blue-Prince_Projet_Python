@@ -10,13 +10,13 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
 
         if evenement.type==pygame.KEYDOWN and not tirage_effectuee:
             direction=None
-            if evenement.key==pygame.K_q:
+            if evenement.key==pygame.K_q or evenement.key==pygame.K_LEFT:
                 direction="gauche"
-            elif evenement.key==pygame.K_d:
+            elif evenement.key==pygame.K_d or evenement.key==pygame.K_RIGHT:
                 direction="droite"
-            elif evenement.key==pygame.K_z:
+            elif evenement.key==pygame.K_z or evenement.key==pygame.K_UP:
                 direction="haut"
-            elif evenement.key==pygame.K_s:
+            elif evenement.key==pygame.K_s or evenement.key==pygame.K_DOWN:
                 direction="bas"
 
             #Si une des touches de déplacement est appuyé
