@@ -103,61 +103,82 @@ class TraitementLoot :
         cell.loot_on_ground = loot_restant
 
 
-    @staticmethod
-    def demander_ouverture_conteneur(container):
-        """
-        Popup Pygame : demande au joueur s'il veut ouvrir le conteneur.
-        Retourne True si 'OUI', False si 'NON'.
-        """
+@staticmethod
+def demander_ouverture_conteneur(container, inventaire):
+    """
+    Popup Pygame : demande au joueur s'il veut ouvrir le conteneur.
+    Le texte dépend automatiquement du type de conteneur.
+    """
 
-        pygame.init()
+    pygame.init()
 
-        # Fenêtre
-        WIDTH, HEIGHT = 400, 200
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Ouvrir le conteneur ?")
+    # Fenêtre
+    WIDTH, HEIGHT = 500, 240
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Confirmation d'ouverture")
 
-        font = pygame.font.SysFont(None, 28)
+    font = pygame.font.SysFont(None, 28)
 
-        # Texte
-        nom = type(container).__name__
-        texte = font.render(f"Ouvrir le {nom} ?", True, (255, 255, 255))
+    # ---- TEXTE SPÉCIFIQUE SELON LE TYPE DE CONTENEUR ----
+    nom = type(container).__name__
 
-        # Boutons
-        bouton_oui = pygame.Rect(60, 120, 120, 50)
-        bouton_non = pygame.Rect(220, 120, 120, 50)
+    if nom == "Casier":
+        texte_str = "Voulez-vous ouvrir le casier pour 1 clé ?"
 
-        clock = pygame.time.Clock()
+    elif nom == "Coffre":
+        hammer = inventaire.objets_permanents["Hammer"]
+        if hammer.obtenu:
+            texte_str = "Voulez-vous ouvrir le coffre gratuitement (Marteau Débloqué) ?"
+        else:
+            texte_str = "Voulez-vous ouvrir le coffre pour 1 clé ?"
 
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+    elif nom == "Digspot":
+        texte_str = "Voulez-vous creuser ?"
+
+    texte = font.render(texte_str, True, (255, 255, 255))
+
+
+    # Boutons
+    bouton_oui = pygame.Rect(80, 150, 150, 50)
+    bouton_non = pygame.Rect(270, 150, 150, 50)
+
+    clock = pygame.time.Clock()
+
+    # ---- BOUCLE DU POPUP ----
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if bouton_oui.collidepoint(event.pos):
+                    pygame.quit()
+                    return True
+
+                if bouton_non.collidepoint(event.pos):
                     pygame.quit()
                     return False
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if bouton_oui.collidepoint(event.pos):
-                        pygame.quit()
-                        return True
-                    if bouton_non.collidepoint(event.pos):
-                        pygame.quit()
-                        return False
+        # ---- AFFICHAGE ----
+        screen.fill((30, 30, 30))
 
-            # Affichage
-            screen.fill((30, 30, 30))  # fond sombre
+        # Texte
+        screen.blit(
+            texte,
+            (WIDTH // 2 - texte.get_width() // 2, 60)
+        )
 
-            # Texte
-            screen.blit(texte, (WIDTH//2 - texte.get_width()//2, 40))
+        # Boutons OUI / NON
+        pygame.draw.rect(screen, (0, 150, 0), bouton_oui)
+        pygame.draw.rect(screen, (150, 0, 0), bouton_non)
 
-            # Boutons
-            pygame.draw.rect(screen, (0, 150, 0), bouton_oui)     # vert
-            pygame.draw.rect(screen, (150, 0, 0), bouton_non)     # rouge
+        txt_oui = font.render("OUI", True, (255, 255, 255))
+        txt_non = font.render("NON", True, (255, 255, 255))
 
-            txt_oui = font.render("OUI", True, (255, 255, 255))
-            txt_non = font.render("NON", True, (255, 255, 255))
+        screen.blit(txt_oui, (bouton_oui.x + 55, bouton_oui.y + 12))
+        screen.blit(txt_non, (bouton_non.x + 50, bouton_non.y + 12))
 
-            screen.blit(txt_oui, (bouton_oui.x + 40, bouton_oui.y + 12))
-            screen.blit(txt_non, (bouton_non.x + 35, bouton_non.y + 12))
+        pygame.display.flip()
+        clock.tick(30)
 
-            pygame.display.flip()
-            clock.tick(30)
