@@ -16,6 +16,7 @@ class Coffre:
         self.salle_manager = salle_manager
         self.genere = False
         self.cout = 1
+        self.ouvert = False
 
     def ouvrir_coffre(self, inventaire : Inventaire):
         """
@@ -80,6 +81,7 @@ class Casier:
         self.salle_manager = salle_manager
         self.genere = False
         self.cout = 1
+        self.ouvert = False
 
     def ouvrir_casier(self, inventaire : Inventaire):
         """
@@ -106,6 +108,8 @@ class Casier:
         poids = list(item_weights.values())
 
         for _ in range(n_items):
+
+            self.genere = True
             choix = random.choices(objets_possibles, weights=poids, k=1)[0]
             # Déterminer la quantité selon le type
             if choix in  ["Pièces", "Gemmes", "Clés", "Dés"]:
@@ -142,6 +146,8 @@ class Digspot:
 
         shovel = inventaire.objets_permanents["Shovel"]
         if shovel.obtenu:
+
+            self.genere = True 
             
             n_items = random.randint(0, self.max_items)
             item_weights = self.salle_manager.get_item_weights(salle_ID)

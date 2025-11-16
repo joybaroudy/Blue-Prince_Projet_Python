@@ -180,9 +180,6 @@ class SalleManager:
             instance["shop"] = Boutique(instance["name"])
 
         return instance
-    
-
-class SalleManager:
 
   # Poids des probabilitées de tirer chaque item
 
