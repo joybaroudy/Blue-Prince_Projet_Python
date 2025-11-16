@@ -32,7 +32,18 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                     new_pos=(x_old,y_old-60)
                 elif direction=="bas":
                     new_pos=(x_old,y_old+60)
+
+                #Limites de la zone de jeu
+                limite_gauche=0
+                limite_droite=300-60
+                limite_haut=0
+                limite_bas=480
                 
+                new_pos_x,new_pos_y=new_pos
+                if new_pos_x<limite_gauche or new_pos_x>limite_droite or new_pos_y<limite_haut or new_pos_y>limite_bas:
+                    print("Vous êtes à la limite de la zone")
+                    continue
+
                 #Vérifie si la salle existe déjà sur le plateau
                 if new_pos in plateau:
                     #Salle déjà posée: on se déplace sans tirage
