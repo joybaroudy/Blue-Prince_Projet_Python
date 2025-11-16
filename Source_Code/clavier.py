@@ -1,5 +1,7 @@
 import pygame
 from Salles import Case
+from Inventory import Inventaire
+
 
 # ordre des portes : [Sud, Ouest, Nord, Est]
 DIRECTION_TO_PORTE_INDEX = {
@@ -21,7 +23,7 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 def gerer_clavier(joueur, tirage_salle, salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau):
+                  tirage_effectuee, direction_choisi, plateau,inventaire):
     continuer = True
 
     # Initialiser l'index de sélection une fois
