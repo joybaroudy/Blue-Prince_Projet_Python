@@ -37,71 +37,54 @@ class SalleManager:
     def pooling_salle(self, coordonnees, porte_index):
         """
         Retourne pool (IDs) et poids (probabilities) selon :
-         - count > 0
-         - la salle a une porte correspondante (porte_index_match)
-         - condition de placement (bord/normal/...): utilise peut_etre_placee()
-         - poids dépend de rareté et du prix (gemmes) et de la rangée (coordonnees[1])
+        - count > 0
+        - la salle a une porte correspondante (porte_index_match)
+        - condition de placement (bord/normal/...): utilise peut_etre_placee()
+        - poids dépend de rareté et du prix (gemmes) et de la rangée (coordonnees[1])
         """
-        # mapping pour match de porte : si ouverture depuis une porte côté p, la salle candidate doit
-        # posséder la porte opposée.
-        # On suppose index: 0=N,1=E,2=S,3=W ; lorsque la porte ouverte a un index = p , 
-        # la salle candidate doit avoir index p opposé
 
-        if porte_index == 0:
-            porte_index_match = 2
-        elif porte_index == 1:
-            porte_index_match = 3
-        elif porte_index == 2:
-            porte_index_match = 0
-        else:
-            porte_index_match = 1
-
-
-        #nouvelle addition pour la rotation aléatoire des salles
-        self.rotations = {
-            ID: random.randint(0, 3)   # 0,1,2,3 => 0°,90°,180°,270°
-            for ID in self.catalogue.IDs
+        # ordre des portes : [Sud, Ouest, Nord, Est] = [0,1,2,3]
+        OPPOSITE = {
+            0: 2,  # Sud <-> Nord
+            2: 0,
+            1: 3,  # Ouest <-> Est
+            3: 1,
         }
 
-        #fin nouvelle addition
+        porte_index_match = OPPOSITE[porte_index]
 
         pool = []
         poids = []
-        facteur = 1.0 # facteur à ajuster pdnt la periode de test
+        facteur = 1.0  # facteur à ajuster pdnt la periode de test
 
         for ID in self.catalogue.IDs:
             count = self.catalogue.salles_count_dict.get(ID)
             rarete = self.catalogue.salles_rarete_dict.get(ID)
+
             if rarete is None:
                 continue
             if count is None or count == 0:
                 continue
+
             portes = self.catalogue.salle_porte_emplacement_dict.get(ID)
+            if not portes:
+                continue
+
+            # IMPORTANT : ne garder que les salles qui ont une porte du bon côté
+            # c'est-à-dire la porte par laquelle on va ENTRER dans cette nouvelle salle
             if not portes[porte_index_match]:
                 continue
-            # vérifier condition placement
-            # ici nous ne connaissons pas la case; on laisse la validation à peut_etre_placee()
-            # mais on ajoute le poids:
-            
 
-            #nouvelle addition pour la rotation aléatoire des salles
-            
-            k = self.rotations[ID]
-            portes = self._rotate_ports(portes, k) # appliquer la rotation tirée pour CE pooling
+            # (ici on pourrait aussi vérifier d'autres conditions si tu veux)
 
-            # on ne garde que si, une fois tournée, la salle a bien une porte du bon côté
-            if not portes[porte_index_match]:
-                continue
-            
-            #fin nouvelle addition
-            
             prix = self.catalogue.salles_price_dict.get(ID, 0)
-            # plus la rangée (coordonnees[1]) est élevée, plus le prix pèse (ex: coord[1]/9)
             poids_ID = 1.0 / (3 ** rarete) * (1 + facteur * (coordonnees[1] / 9) * prix)
+
             pool.append(ID)
             poids.append(poids_ID)
 
         return pool, poids
+
 
     def tirage_salles(self, coordonnees, porte_index, case_obj: Case):
         """
@@ -154,15 +137,8 @@ class SalleManager:
     def generer_salle(self, coordonnees, salle_ID):
         """
         Créer un dictionnaire représentant l'instance de salle placée (portail/objets...).
+        Pour l’instant, on ignore la rotation pour rester cohérent avec le catalogue.
         """
-
-        #nouvelle addition pour la rotation aléatoire des salles
-        # rotation qui a été tirée lors du dernier pooling_salle
-        rotation = self.rotations.get(salle_ID, 0)
-
-        base_portes = self.catalogue.salle_porte_emplacement_dict.get(salle_ID, [False]*4)
-        portes_rot = self._rotate_ports(base_portes, rotation)
-        #fin nouvelle addition
 
         instance = {
             "ID": salle_ID,
@@ -171,8 +147,8 @@ class SalleManager:
             "price": self.catalogue.salles_price_dict.get(salle_ID),
             "portes": self.catalogue.salle_porte_emplacement_dict.get(salle_ID),
             "effect": self.catalogue.salles_conditions_dict.get(salle_ID),
-            "contenu": [],   # objets générés plus tard
-            "shop": None,    # sera une Boutique si Yellow room
+            "contenu": [],
+            "shop": None,
         }
 
         # Lier une boutique si c'est une Yellow room
@@ -180,6 +156,7 @@ class SalleManager:
             instance["shop"] = Boutique(instance["name"])
 
         return instance
+
 
   # Poids des probabilitées de tirer chaque item
 

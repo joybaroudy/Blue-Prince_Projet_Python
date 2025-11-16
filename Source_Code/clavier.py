@@ -1,70 +1,116 @@
 import pygame
 from Salles import Case
 
-def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau):
-    continuer=True
-    #Déplacement du joueur et sélection de la pièce aléatoire avec le clavier
+# ordre des portes : [Sud, Ouest, Nord, Est]
+DIRECTION_TO_PORTE_INDEX = {
+    "bas": 0,      # Sud
+    "gauche": 1,   # Ouest
+    "haut": 2,     # Nord
+    "droite": 3,   # Est
+}
+
+def pixel_to_case(x, y, cell_size=60):
+    """
+    Convertit une position en pixels (x,y) en coordonnées de grille [row, col] 1..N.
+    Tu pourras ajuster si ta grille de niveau n'est pas exactement alignée.
+    """
+    col = x // cell_size + 1
+    row = y // cell_size + 1
+    return [row, col]
+
+
+
+def gerer_clavier(joueur, tirage_salle, salle_catalogue, salle_selectionnee,
+                  tirage_effectuee, direction_choisi, plateau):
+    continuer = True
+
+    # Initialiser l'index de sélection une fois
+    if not hasattr(gerer_clavier, "index_selection"):
+        gerer_clavier.index_selection = 0
+
+
     for evenement in pygame.event.get():
-        if evenement.type==pygame.QUIT:
-            continuer=False
+        if evenement.type == pygame.QUIT:
+            continuer = False
 
-        if evenement.type==pygame.KEYDOWN and not tirage_effectuee:
-            direction=None
-            if evenement.key==pygame.K_q or evenement.key==pygame.K_LEFT:
-                direction="gauche"
-            elif evenement.key==pygame.K_d or evenement.key==pygame.K_RIGHT:
-                direction="droite"
-            elif evenement.key==pygame.K_z or evenement.key==pygame.K_UP:
-                direction="haut"
-            elif evenement.key==pygame.K_s or evenement.key==pygame.K_DOWN:
-                direction="bas"
+        # --- 1) MOUVEMENT + TIRAGE ---
+        if evenement.type == pygame.KEYDOWN and not tirage_effectuee:
+            direction = None
+            if evenement.key == pygame.K_q or evenement.key == pygame.K_LEFT:
+                direction = "gauche"
+            elif evenement.key == pygame.K_d or evenement.key == pygame.K_RIGHT:
+                direction = "droite"
+            elif evenement.key == pygame.K_z or evenement.key == pygame.K_UP:
+                direction = "haut"
+            elif evenement.key == pygame.K_s or evenement.key == pygame.K_DOWN:
+                direction = "bas"
 
-            #Si une des touches de déplacement est appuyé
             if direction:
-                #On enregistre l'ancienne position du joueur
-                x_old, y_old=joueur.x,joueur.y
+                # position actuelle du joueur
+                x_actu, y_actu = joueur.x, joueur.y
 
-                if direction=="gauche":
-                    new_pos=(x_old-60,y_old)
-                elif direction=="droite":
-                    new_pos=(x_old+60,y_old)
-                elif direction=="haut":
-                    new_pos=(x_old,y_old-60)
-                elif direction=="bas":
-                    new_pos=(x_old,y_old+60)
-
-                #Limites de la zone de jeu
-                limite_gauche=0
-                limite_droite=300-60
-                limite_haut=0
-                limite_bas=480
-                
-                new_pos_x,new_pos_y=new_pos
-                if new_pos_x<limite_gauche or new_pos_x>limite_droite or new_pos_y<limite_haut or new_pos_y>limite_bas:
-                    print("Vous êtes à la limite de la zone")
+                # 1) récupérer la salle actuelle sur le plateau
+                nom_salle_actuelle = plateau.get((x_actu, y_actu))
+                if not nom_salle_actuelle:
+                    # normalement ça ne devrait pas arriver si le plateau est bien rempli
+                    print("Aucune salle à la position actuelle du joueur.")
                     continue
 
-                #Vérifie si la salle existe déjà sur le plateau
+                # 2) récupérer l'ID + portes de la salle actuelle
+                salle_id_actuelle = salle_catalogue.name_to_id.get(nom_salle_actuelle)
+                if salle_id_actuelle is None:
+                    print(f"Nom de salle inconnu côté catalogue : {nom_salle_actuelle}")
+                    continue
+
+                portes = salle_catalogue.salle_porte_emplacement_dict.get(salle_id_actuelle)
+                if portes is None:
+                    print(f"Aucune info de portes pour {salle_id_actuelle}")
+                    continue
+
+                porte_index_depart = DIRECTION_TO_PORTE_INDEX[direction]
+
+                # 3) vérifier s'il y a une porte dans cette direction
+                if not portes[porte_index_depart]:
+                    print(f"Pas de porte vers {direction} pour la salle {nom_salle_actuelle}")
+                    continue  # on ignore la touche
+
+                # 4) calculer la nouvelle case en pixels
+                if direction == "gauche":
+                    new_pos = (x_actu - 60, y_actu)
+                elif direction == "droite":
+                    new_pos = (x_actu + 60, y_actu)
+                elif direction == "haut":
+                    new_pos = (x_actu, y_actu - 60)
+                elif direction == "bas":
+                    new_pos = (x_actu, y_actu + 60)
+
+                # 5) si une salle existe déjà -> déplacement simple
                 if new_pos in plateau:
-                    #Salle déjà posée: on se déplace sans tirage
-                    joueur.x,joueur.y=new_pos
-                    print(f"Déplacement dans une salle existante:{plateau[new_pos]}")
-                    salle_selectionnee=None
-                    tirage_effectuee=False
-                    direction_choisi=None
+                    joueur.x, joueur.y = new_pos
+                    print(f"Déplacement dans une salle existante : {plateau[new_pos]}")
+                    salle_selectionnee = None
+                    tirage_effectuee = False
+                    direction_choisi = None
+
+                # 6) sinon -> on tente un tirage de nouvelles salles
                 else:
-                    case_test = Case([120,480])
+                    # conversion en coordonnées de grille pour les règles de placement
+                    row, col = pixel_to_case(x_actu, y_actu)
+                    case_test = Case([row, col])
 
-                    tirage=tirage_salle.tirage_salles(coordonnees=[120,480], porte_index=2, case_obj=case_test)
+                    tirage = tirage_salle.tirage_salles(
+                        coordonnees=[row, col],
+                        porte_index=porte_index_depart,
+                        case_obj=case_test
+                    )
 
-                    if tirage :
-                        salle_selectionnee=tirage
-                        print("Tirage effectuee à ({direction})", tirage)
-                        tirage_effectuee=True
-                        direction_choisi=direction
-                        gerer_clavier.index_selection=0
+                    if tirage:
+                        salle_selectionnee = tirage
+                        print(f"Tirage effectué vers {direction} :", tirage)
+                        tirage_effectuee = True
+                        direction_choisi = direction
                     else:
-                        print("Aucun tirage")
+                        print("Aucun tirage possible dans cette direction.")
 
         elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
 
@@ -112,3 +158,13 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                 gerer_clavier.index_selection=0
     
     return continuer,salle_selectionnee,tirage_effectuee, direction_choisi
+
+
+    if tirage:
+        salle_selectionnee = tirage
+        print(f"Tirage effectué vers {direction} :", tirage)
+        tirage_effectuee = True
+        direction_choisi = direction
+        gerer_clavier.index_selection = 0  # <-- reset de la sélection
+    else:
+        print("Aucun tirage possible dans cette direction.")

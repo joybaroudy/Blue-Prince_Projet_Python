@@ -33,7 +33,7 @@ joueur=Joueur(120,480)
 plateau={}
 
 #Position de départ: salle d'entrée
-plateau[(120,480)]="Entrance_hall"
+plateau[(120,480)]="Entrance Hall"
 #Salle final
 plateau[(120,0)]="Antechamber"
 

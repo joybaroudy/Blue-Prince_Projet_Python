@@ -116,6 +116,8 @@ class Salle:
             "ID85" : "Furnace"
             }
 
+        self.name_to_id = {nom: ID for ID, nom in self.salles_names_dict.items()}
+
         self.salles_rarete_dict = {
             "ID1" : 3,
             "ID2" : None,
