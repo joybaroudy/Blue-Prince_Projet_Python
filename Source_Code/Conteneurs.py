@@ -1,6 +1,8 @@
 import random
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture
 
+
+
 class Coffre:
     """
     Coffre / Casier / DigSpot
