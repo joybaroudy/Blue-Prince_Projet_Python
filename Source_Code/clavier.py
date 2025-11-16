@@ -85,6 +85,17 @@ def gerer_clavier(joueur, tirage_salle, salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu - 60)
                 elif direction == "bas":
                     new_pos = (x_actu, y_actu + 60)
+                
+                #Limite de la zone du jeu
+                limite_gauche=0
+                limite_droite=300-60
+                limite_haut=0
+                limite_bas=480
+
+                x_new,y_new=new_pos
+                if x_new<limite_gauche or x_new>limite_droite or y_new<limite_haut or y_new>limite_bas:
+                    print("impossible de dépasser")
+                    continue
 
                 # 5) si une salle existe déjà -> déplacement simple
                 if new_pos in plateau:
