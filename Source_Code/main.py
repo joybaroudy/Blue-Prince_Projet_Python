@@ -51,7 +51,7 @@ while continuer:
         joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire)
 
     #Affichage de l'écran
-    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau)
+    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi)
 
     #Vérification de la partie
     if inventaire.objets_consommables["Pas"].quantite<=0:
@@ -64,7 +64,7 @@ while continuer:
 screen.fill((0,0,0))
 if etat_partie=="défaite":
     texte=font.render("Partie perdu",True,(255,0,0))
-elif etat_partie=="victoire":    
+elif etat_partie=="Victoire":    
     texte=font.render("Partie gagné",True,(255,0,0))
 
 screen.blit(texte, (width//2-200,height//2))

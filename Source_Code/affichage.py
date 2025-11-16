@@ -115,7 +115,33 @@ def charger_images():
         "des_img":pygame.image.load("Image_initial/des.png").convert()
     }
 
-def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau):
+#On afiche la direction du joueur qu'il souhaite aller
+def afficher_direction(screen, direction_choisi,font,joueur):
+    if not direction_choisi:
+        return
+    
+    #Position du joueur pour dessiner la flèche
+    x,y=joueur.x+30,joueur.y+30
+    couleur=(0,255,0)
+    taille=15
+
+    fleche=[]
+    #Forme de la flèche selon la direction
+    if direction_choisi=="haut":
+        fleche=[(x,y-taille),(x-taille,y+taille),(x+taille,y+taille)]
+    elif direction_choisi=="bas":
+        fleche=[(x,y+taille),(x-taille,y-taille),(x+taille,y-taille)]
+    elif direction_choisi=="gauche":
+        fleche=[(x-taille,y),(x+taille,y-taille),(x+taille,y+taille)]
+    elif direction_choisi=="droite":
+        fleche=[(x+taille,y),(x-taille,y-taille),(x-taille,y+taille)]
+    else:
+        return
+    
+    #Dessine le triangle
+    pygame.draw.polygon(screen,couleur,fleche)
+
+def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau,direction_choisi):
 
     ecran_jeu=300
     width,height=screen.get_size()
@@ -217,4 +243,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
             screen.blit(texte_salle,(x, y+105))"""
     
     joueur.position_initial(screen)
+    if direction_choisi:
+        afficher_direction(screen,direction_choisi,font,joueur)
+    
     pygame.display.flip()
