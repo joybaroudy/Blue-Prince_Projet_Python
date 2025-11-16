@@ -43,12 +43,31 @@ direction_choisi=None
 
 #Boucle du jeu
 continuer = True
+#Etat de la partie
+etat_partie=None #Gagné ou Perdu
 while continuer:
     #Gestion du clavier
     continuer,salle_selectionnee,tirage_effectuee, direction_choisi=gerer_clavier(
-        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau)
+        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire)
 
     #Affichage de l'écran
     affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau)
 
+    #Vérification de la partie
+    if inventaire.objets_consommables["Pas"].quantite<=0:
+        etat_partie="défaite"
+        continuer=False
+    elif plateau.get((joueur.x,joueur.y))=="Antechamber":
+        etat_partie="Victoire"
+        continuer=False
+
+screen.fill((0,0,0))
+if etat_partie=="défaite":
+    texte=font.render("Partie perdu",True,(255,0,0))
+elif etat_partie=="victoire":    
+    texte=font.render("Partie gagné",True,(255,0,0))
+
+screen.blit(texte, (width//2-200,height//2))
+pygame.display.flip()
+pygame.time.wait(3000)
 pygame.quit()

@@ -1,7 +1,7 @@
 import pygame
 from Salles import Case
 
-def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau):
+def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire):
     continuer=True
     #Déplacement du joueur et sélection de la pièce aléatoire avec le clavier
     for evenement in pygame.event.get():
@@ -52,6 +52,20 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                     salle_selectionnee=None
                     tirage_effectuee=False
                     direction_choisi=None
+
+                    #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
+                    inventaire.objets_consommables["Pas"].quantite-=1
+                    print("Pas restant:{inventaire.objets_consommables['Pas'].quantite}")
+
+                    #Si on attaint l'antichambre
+                    if plateau.get(new_pos)=="Antechamber" and inventaire.objets_consommables["Pas"].quantite>=0:
+                        print("Partie gagné")
+                        continuer=False
+                
+                    #Si plus de pas = partie perdue
+                    elif inventaire.objets_consommables["Pas"].quantite<=0:
+                        print("VOus n'avez plus de pas.Vous avez perdue la partie") 
+                        continuer=False
                 else:
                     case_test = Case([120,480])
 
@@ -98,7 +112,21 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                     joueur.deplacement(0,-1)
                 elif direction_choisi=="bas":
                     joueur.deplacement(0,1)
-                
+
+                #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
+                inventaire.objets_consommables["Pas"].quantite-=1
+                print("Pas restant:{inventaire.objets_consommables['Pas'].quantite}")
+
+                new_pos=(joueur.x,joueur.y)
+                #Si on attaint l'antichambre
+                if plateau.get(new_pos)=="Antechamber" and inventaire.objets_consommables["Pas"].quantite>=0:
+                    print("Partie gagné")
+                    continuer=False
+                #Si plus de pas = partie perdue
+                elif inventaire.objets_consommables["Pas"].quantite<=0:
+                    print("VOus n'avez plus de pas.Vous avez perdue la partie") 
+                    continuer=False
+
                 #On enregistre les nouvelles position du joueur=emplacement de la salle choisi
                 new_pos_x,new_pos_y=joueur.x,joueur.y
 
