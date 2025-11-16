@@ -1,5 +1,4 @@
-from Inventory import Inventaire
-from Objets import ObjetConsommable, ObjetPermanent, Nourriture
+from Inventory import Inventaire, Objet, ObjetConsommable, ObjetPermanent, Nourriture
 from Conteneurs import Coffre, Casier, Digspot
 from RoomCell import RoomCell
 from Manoir import Manoir

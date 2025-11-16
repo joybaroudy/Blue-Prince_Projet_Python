@@ -1,7 +1,6 @@
 import random
 from SalleManager import SalleManager
-from Inventory import Inventaire
-from Objets import Objet, ObjetConsommable, ObjetPermanent, Nourriture
+from Inventory import Inventaire, Objet, ObjetConsommable, ObjetPermanent, Nourriture
 from RoomCell import RoomCell, DoorState
 from Conteneurs import Coffre, Casier, Digspot
 
