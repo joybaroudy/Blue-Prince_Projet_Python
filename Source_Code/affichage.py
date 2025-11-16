@@ -200,6 +200,18 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
             if i == getattr(clavier.gerer_clavier, "index_selection", 0):
                 pygame.draw.rect(screen, (255, 0, 0), (x - 5, y - 5, 170, 170), 4)
 
+        texte_quitter=font.render("Quitter",True,(255,0,0))
+        x_quitter=pos_x+len(salle_selectionnee)*200
+        y_quitter=pos_y+60
+        screen.blit(texte_quitter,(x_quitter,y_quitter))
+
+        #On adapte la taille du texte en fonction de la taille du rectangle
+        largeur_texte, hauteur_texte=texte_quitter.get_size()
+
+        # Si c’est la salle actuellement sélectionnée, on dessine un cadre rouge
+        if getattr(clavier.gerer_clavier, "index_selection", 0)==len(salle_selectionnee):
+            pygame.draw.rect(screen, (255, 0, 0), (x_quitter-5, y_quitter + 5, largeur_texte+10, hauteur_texte+10), 3)
+
             """#On ajoute le nom des salles en dessous
             texte_salle=font.render(f"{salle_nom}",True, (0,0,0))
             screen.blit(texte_salle,(x, y+105))"""

@@ -56,12 +56,25 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
                         print("Aucun tirage")
 
         elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
+
+            #On ajoute l'option quitter
+            nb_options=len(salle_selectionnee)+1
+
             if evenement.key==pygame.K_q:
-                gerer_clavier.index_selection=(gerer_clavier.index_selection-1)%len(salle_selectionnee)
+                gerer_clavier.index_selection=(gerer_clavier.index_selection-1)%nb_options
             elif evenement.key==pygame.K_d:
-                gerer_clavier.index_selection=(gerer_clavier.index_selection+1)%len(salle_selectionnee)
+                gerer_clavier.index_selection=(gerer_clavier.index_selection+1)%nb_options
             elif evenement.key==pygame.K_RETURN: #Entrée pour confirmé la salle
                 choix=gerer_clavier.index_selection
+
+                if choix==len(salle_selectionnee):
+                    print("Tirage annulé")
+                    salle_selectionnee=None
+                    tirage_effectuee=False
+                    direction_choisi=None
+                    gerer_clavier.index_selection=0
+                    continue    #Onreste sur la même position
+
                 salle_choisie=salle_selectionnee[choix]
                 nom_salle=salle_catalogue.salles_names_dict.get(salle_choisie,"Inconnue")
                 print(f"Salle choisie : {salle_choisie} ({nom_salle})")
