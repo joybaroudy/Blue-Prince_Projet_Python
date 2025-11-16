@@ -66,7 +66,7 @@ class Inventaire:
             return True
         return False
     
-    from Inventory import Inventaire
+ 
 
 class Objet:
     """Classe de base pour tout objet du jeu."""
