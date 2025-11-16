@@ -21,17 +21,38 @@ def gerer_clavier(joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage
 
             #Si une des touches de déplacement est appuyé
             if direction:
-                case_test = Case([120,480])
+                #On enregistre la position actuelle du joueur
+                x_actu, y_actu=joueur.x,joueur.y
 
-                tirage=tirage_salle.tirage_salles(coordonnees=[120,480], porte_index=2, case_obj=case_test)
-
-                if tirage :
-                    salle_selectionnee=tirage
-                    print("Tirage effectuee à ({direction})", tirage)
-                    tirage_effectuee=True
-                    direction_choisi=direction
+                if direction=="gauche":
+                    new_pos=(x_actu-60,y_actu)
+                elif direction=="droite":
+                    new_pos=(x_actu+60,y_actu)
+                elif direction=="haut":
+                    new_pos=(x_actu,y_actu-60)
+                elif direction=="bas":
+                    new_pos=(x_actu,y_actu+60)
+                
+                #Vérifie si la salle existe déjà sur le plateau
+                if new_pos in plateau:
+                    #Salle déjà posée: on se déplace sans tirage
+                    joueur.x,joueur.y=new_pos
+                    print(f"Déplacement dans une salle existante:{plateau[new_pos]}")
+                    salle_selectionnee=None
+                    tirage_effectuee=False
+                    direction_choisi=None
                 else:
-                    print("Aucun tirage")
+                    case_test = Case([120,480])
+
+                    tirage=tirage_salle.tirage_salles(coordonnees=[120,480], porte_index=2, case_obj=case_test)
+
+                    if tirage :
+                        salle_selectionnee=tirage
+                        print("Tirage effectuee à ({direction})", tirage)
+                        tirage_effectuee=True
+                        direction_choisi=direction
+                    else:
+                        print("Aucun tirage")
 
         elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
             choix=None
