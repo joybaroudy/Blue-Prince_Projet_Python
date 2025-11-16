@@ -64,7 +64,8 @@ class TraitementLoot :
                 if not item.ouvert:
 
                     # UI : demander à l'utilisateur
-                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item)
+                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item, inventaire)
+
 
                     if not doit_ouvrir:
                         # On laisse l'objet au sol
