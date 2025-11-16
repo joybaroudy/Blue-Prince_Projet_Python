@@ -17,9 +17,6 @@ class DoorState:
         self.tirage_results = None  # Ex: ["ID14", "ID4", "ID22"]
 
 
-# -----------------------------------------------------------
-#  ===  ETAT D'UNE CASE DU MANOIR  ===
-# -----------------------------------------------------------
 
 class RoomCell:
     """

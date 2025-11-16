@@ -66,8 +66,6 @@ class Inventaire:
             return True
         return False
     
- 
-
 class Objet:
     """Classe de base pour tout objet du jeu."""
     def __init__(self, nom=None):

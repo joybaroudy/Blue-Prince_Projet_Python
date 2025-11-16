@@ -66,6 +66,10 @@ class Coffre:
                 # Objet permanent
                 quantite = 1
                 self.contenu.append(choix,quantite)
+    
+    def ouvrir(self, inventaire: Inventaire): # Sert à uniformiser pour l'ouverture des conteneurs et pr Traitement loot
+        return self.ouvrir_coffre(inventaire)
+
 
 
 class Casier:
@@ -125,6 +129,9 @@ class Casier:
             else:                                                # Lavariable quantite est ajoutée pour eviter les errurs plus tard
                 # Objet permanent
                 continue # Si l'objet tiré est un objet permanent on ne l'ajoute pas car le casier n'a que des consommables
+    
+    def ouvrir(self, inventaire: Inventaire):
+        return self.ouvrir_casier(inventaire)
 
 class Digspot:
     """
@@ -140,6 +147,7 @@ class Digspot:
         self.max_items = max_items
         self.salle_manager = salle_manager
         self.genere = False
+        self.ouvert = False
 
     def generer_contenu(self, salle_ID, inventaire : Inventaire):
         """
@@ -171,6 +179,14 @@ class Digspot:
                 else:                                                # Lavariable quantite est ajoutée pour eviter les errurs plus tard
                     # Objet permanent
                     continue # Si l'objet tiré est un objet permanent on ne l'ajoute pas car le casier n'a que des consommables
+        
+    def ouvrir(self, inventaire: Inventaire):
+        shovel = inventaire.objets_permanents["Shovel"]
+        if shovel.obtenu:
+            self.ouvert = True
+            return True
+        return False
+
 
 
 
