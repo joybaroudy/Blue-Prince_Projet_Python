@@ -1,4 +1,5 @@
 import pygame
+import clavier
 
 def charger_Images_salles():
     return{ #Salle bleue
@@ -179,7 +180,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         Salle_tiree=font.render("Tirage de salles:",True,(0,0,0))
         screen.blit(Salle_tiree, (ecran_jeu+20, (height//2-80)+40))
 
-        Instruction=font.render("Veuillez choisir entre Q, S et D",True,(0,0,0))
+        Instruction=font.render("Q et D pour bouger la molette",True,(0,0,0))
         screen.blit(Instruction, (ecran_jeu+20, (height//2-80)+80))
         
         pos_y=(height//2-80)+120
@@ -194,6 +195,10 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
             x=pos_x+i*200
             y=pos_y
             screen.blit(img, (x,y))
+
+            # Si c’est la salle actuellement sélectionnée, on dessine un cadre rouge
+            if i == getattr(clavier.gerer_clavier, "index_selection", 0):
+                pygame.draw.rect(screen, (255, 0, 0), (x - 5, y - 5, 170, 170), 4)
 
             """#On ajoute le nom des salles en dessous
             texte_salle=font.render(f"{salle_nom}",True, (0,0,0))
