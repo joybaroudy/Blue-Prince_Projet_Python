@@ -1,6 +1,24 @@
 import pygame
 from Salles import Case
 from Inventory import Inventaire
+from Boutique import Boutique
+from TraitementBoutique import TraitementBoutique
+
+def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
+    """
+    Si la salle est jaune, ouvre la boutique correspondante.
+    """
+    salle_id = salle_catalogue.name_to_id.get(nom_salle)
+    if salle_id is None:
+        return
+
+    couleur = salle_catalogue.salle_couleur_dict.get(salle_id)
+    if couleur != "Yellow":
+        return
+
+    boutique = Boutique(nom_salle)
+    tb = TraitementBoutique(boutique)
+    tb.traitement_boutique(inventaire)
 
 
 # ordre des portes : [Sud, Ouest, Nord, Est]
@@ -131,6 +149,9 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     tirage_effectuee = False
                     direction_choisi = None
 
+                    # Si salle jaune -> lancer la boutique
+                    lancer_boutique_si_jaune(nom_salle_voisine, salle_catalogue, inventaire)
+
                     # Consommation de pas + logique victoire/défaite
                     inventaire.objets_consommables['Pas'].quantite -= 1
                     print(f"Pas restants : {inventaire.objets_consommables['Pas'].quantite}")
@@ -215,6 +236,8 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
 
                 #On enregistre la salle choisie sur le plateau
                 plateau[(new_pos_x,new_pos_y)]=nom_salle
+
+                lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire)
 
                     #Réinitialisation de tous les état
                 salle_selectionnee=None

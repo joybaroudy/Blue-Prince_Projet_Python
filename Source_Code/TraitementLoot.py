@@ -4,6 +4,7 @@ from RoomCell import RoomCell
 from Manoir import Manoir
 import pygame
 from Boutique import Boutique
+from TraitementBoutique import TraitementBoutique
 
 
 
@@ -102,8 +103,12 @@ class TraitementLoot :
                 loot_restant.remove(item)
                 continue
 
-            elif isinstance(item, Boutique) : 
-                item.traitement_boutique(inventaire)
+            elif isinstance(item, Boutique):
+                # Ouvrir l'UI de boutique pour cet objet Boutique
+                tshop = TraitementBoutique(item)
+                tshop.traitement_boutique(inventaire)
+                # Une fois la visite terminée, on peut retirer la boutique du sol
+                loot_restant.remove(item)
 
         cell.loot_on_ground = loot_restant
 

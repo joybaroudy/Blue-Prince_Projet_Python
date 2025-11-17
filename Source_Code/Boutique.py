@@ -39,9 +39,9 @@ def _debloquer_permanent(inv, nom: str):
 
 # Tables des objets possibles et des prix (version simple)
 
-OBJETS_CONSOMMABLES_SHOP = ["Gemmes", "Clés", "Dés", "Pas"]
+OBJETS_CONSOMMABLES_SHOP = ["Gemmes", "Clés", "Dés"]
 
-NOURRITURES_NOMS = ["Pomme", "Banane", "Gâteau", "Sandwich", "Repas"]
+NOURRITURES_NOMS = ["Pomme", "Banane", "Gâteau", "Sandwich"]
 
 PRIX_CONSOMMABLES = {
     "Gemmes": 5,
