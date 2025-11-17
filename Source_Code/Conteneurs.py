@@ -1,6 +1,6 @@
 import random
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture
-from SalleManager import SalleManager
+
 
 
 
@@ -9,7 +9,7 @@ class Coffre:
     Coffre / Casier / DigSpot
     Peut contenir plusieurs objets aléatoires (0 à 4)
     """
-    def __init__(self, salle_manager : SalleManager , max_items=4):
+    def __init__(self, salle_manager , max_items=4):
         """
         salle_manager : instance de SalleManager (pour accéder à get_item_weights)
         max_items : nombre max d'objets par coffre

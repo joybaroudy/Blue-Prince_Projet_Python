@@ -1,7 +1,6 @@
 import random
 
 from Salles import Salle, Case
-from Boutique import Boutique
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture 
 from Conteneurs import Coffre, Casier, Digspot
 from Boutique import Boutique, ArticleShop
