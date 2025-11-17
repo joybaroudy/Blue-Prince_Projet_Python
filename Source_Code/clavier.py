@@ -3,6 +3,7 @@ from Salles import Case
 from Inventory import Inventaire
 from Boutique import Boutique
 from TraitementBoutique import TraitementBoutique
+from EffetsSalles import EffetsSalles
 
 def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
     """
@@ -145,6 +146,14 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     # Ici, les deux salles ont bien une porte face à face → déplacement autorisé
                     joueur.x, joueur.y = new_pos
                     print(f"Déplacement dans une salle existante : {nom_salle_voisine}")
+
+                    # Appliquer les effets d'entrée de la salle
+
+                    effet = EffetsSalles(salle_id_voisine, salle_catalogue)
+                    effet.apply_entry_effects(inventaire)
+
+                    print(f"[EFFET] Effets appliqués : {effet.name}")
+
                     salle_selectionnee = None
                     tirage_effectuee = False
                     direction_choisi = None
@@ -234,6 +243,14 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
                 inventaire.objets_consommables["Pas"].quantite-=1
                 print("Pas restant:{inventaire.objets_consommables['Pas'].quantite}")
+
+                #Appliquer les effets d'entrée de la salle
+                
+                effet = EffetsSalles(salle_choisie, salle_catalogue)
+                effet.apply_entry_effects(inventaire)
+
+                print(f"[EFFET] Effets appliqués : {effet.name}")
+
 
                 new_pos=(joueur.x,joueur.y)
                 #Si on attaint l'antichambre

@@ -40,7 +40,7 @@ class Manoir:
         Appelé quand le joueur entre dans une salle.
         Si première visite :
             - créer la salle (tirer ID)
-            - générer le loot de salle
+            - générer le loot de sallgie
             - générer les conteneurs (mais pas leur contenu)
         Sinon, on ne change rien : on revient dans l'état précédent.
         """

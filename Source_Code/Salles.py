@@ -682,41 +682,81 @@ class Salle:
             return False
 
 
+import random
+import pygame
+from Inventory import Inventaire, ObjetPermanent
 
 class Porte:
     """
-    Porte : statut verrouillage 0/1/2 (0=open, 1=locked, 2=double lock)
-    Ne doit PAS hériter de Salle.
+    Porte : statut verrouillage 0/1/2 (0 = open, 1 = locked, 2 = double lock)
     """
     def __init__(self, coordonnees):
-        # coordonnees : [row, col] 
         r, c = coordonnees
-        # probabilité de cout 0 diminue quand on monte dans le manoir (col plus élevé)
+
         weight_cout_0 = 1 * (1 - (c / 9))
         weight_cout_1 = 1 * (c / 9)
-        cout = random.choices([0, 1], weights=[weight_cout_0, weight_cout_1], k=1)[0]
-        self.cout = cout  # 0 ou 1 ; si 1 il faudra une clé (ou kit crochetage si level 1)
+
+        self.cout = random.choices([0, 1], weights=[weight_cout_0, weight_cout_1], k=1)[0]
         self.ouvert = False
 
-        proba_DT = 0.5 * (c / 9)  # proba d'avoir double-tour si cout==1
+        proba_DT = 0.5 * (c / 9)
 
         if self.cout == 1:
             self.double_tour = random.choices([False, True], weights=[1 - proba_DT, proba_DT], k=1)[0]
-            # niveau : 1 (locked) ou 2 (double tour), on encode via self.level
-            if self.double_tour :
-                self.level = 2 
-            else :
-                self.level = 1
+            self.level = 2 if self.double_tour else 1
         else:
             self.double_tour = False
             self.level = 0
 
+  # demander à l'utilisateur si il veut ouvrir la porte ou pas 
+  
+    def demander_ouverture_porte(self, inventaire: Inventaire):
+        """
+        Ouvre une fenêtre Pygame demandant :
+        - Voulez-vous ouvrir la porte ?
+        - Affiche le coût exact (clé, double tour, lockpick...)
+        """
+        fenetre = pygame.display.get_surface()
+        police = pygame.font.SysFont("arial", 24)
+
+        # Construire le message :
+        if self.level == 0:
+            message = "Cette porte est ouverte. Voulez-vous entrer ? (O/N)"
+        elif self.level == 1:
+            if inventaire.objets_permanents["Lockpick Kit"].obtenu:
+                message = "Porte verrouillée (niveau 1). Ouvrir avec lockpick ? (O/N)"
+            else:
+                message = "Porte verrouillée (1 clé). Voulez-vous l'ouvrir ? (O/N)"
+        else:
+            message = "Porte double-tour (1 clé). Voulez-vous l'ouvrir ? (O/N)"
+
+        # Boucle d'attente utilisateur
+        attendre_choix = True
+        while attendre_choix:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_o:      # OUI
+                        return self.ouvrir_porte(inventaire)
+
+                    elif event.key == pygame.K_n:    # NON
+                        return False
+
+            # Affichage
+            fenetre.fill((0, 0, 0))
+            texte = police.render(message, True, (255, 255, 255))
+            fenetre.blit(texte, (40, 300))
+            pygame.display.flip()
+
+#ouverture de porte
     def ouvrir_porte(self, inventaire: Inventaire):
         """
-        Tentative d'ouverture:
-        - si kit de crochetage obtenu et level == 1 -> ouvre
-        - sinon si clés suffisantes -> dépense
-        - sinon si level == 0 -> ouvre gratuitement
+        - Level 0 => ouvre gratuitement
+        - Level 1 => lockpick OU 1 clé
+        - Level 2 => 1 clé obligatoire
         """
         if self.ouvert:
             return True
@@ -725,17 +765,15 @@ class Porte:
             self.ouvert = True
             return True
 
-        # level 1 ou 2
         kit = inventaire.objets_permanents["Lockpick Kit"]
-        if self.level == 1 and isinstance(kit, ObjetPermanent) and kit.obtenu:
+
+        if self.level == 1 and kit.obtenu:
             self.ouvert = True
             return True
 
-        # sinon tenter avec clés
         if inventaire.objets_consommables["Clés"].quantite >= self.cout:
             inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
             self.ouvert = True
             return True
 
         return False
-
