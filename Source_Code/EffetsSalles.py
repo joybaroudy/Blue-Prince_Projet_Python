@@ -6,7 +6,7 @@ class EffetsSalles :
     def __init__(self, ID, salles : Salle) : 
          
          self.couleur = salles.salle_couleur_dict[str(ID)]
-         self.name = salles.salle_name_dict[str(ID)]
+         self.name = salles.salles_names_dict[str(ID)]
     
     def apply_entry_effets(self, inventaire : Inventaire) :
          
