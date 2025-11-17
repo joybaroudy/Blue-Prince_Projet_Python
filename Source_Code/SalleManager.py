@@ -248,15 +248,16 @@ class SalleManager:
 
     def generer_conteneurs(self, salle_ID): # Coffres ou casiers
 
-        rarete = self.catalogue.salles_rarete_dict.get(salle_ID, 0)
-        condition = self.catalogue.salles_conditions_dict.get(salle_ID, None)
+        rarete = self.catalogue.salles_rarete_dict(salle_ID)
+        name = self.catalogue.salles_names_dict(salle_ID)
         conteneurs = []
 
         # Locker Room → 1 à 3 casiers garantis
-        if condition == "Locker Room":
+        if name == "Locker Room":
             nb = random.randint(1, 3)
             for _ in range(nb):
                 conteneurs.append(Casier())
+        
 
         # Coffre → rare + rareté
         proba_coffre = 0.1 + 0.05 * rarete
@@ -267,7 +268,9 @@ class SalleManager:
     
     def generer_contenu(self, salle_ID, inventaire : Inventaire, lucky_bonus=0.0):
 
-        if self.catalogue.salle_couleur_dict(salle_ID) == "Yellow" : 
+        color = self.catalogue.salle_couleur_dict(salle_ID)
+
+        if color == "Yellow" : 
             
             boutique = Boutique(self.catalogue.salles_names_dict.get(salle_ID))
 
@@ -286,13 +289,22 @@ class SalleManager:
         contenu.extend(self.generer_conteneurs(salle_ID))
 
       # 2) Digspots
-        if inventaire is not None:
+        if color == "Green":
             contenu.extend(self.generer_digspots(salle_ID, inventaire))
 
   
         # 3) poids des loots + bonus (Patte de lapin + Detecteur de métaux)
     
         weights = self.get_item_weights(salle_ID)
+
+       
+
+        if color == "Blue" : # Les salles bleues donnent plus de loot au sol
+            blue_bonus_piece = 10
+            blue_bonus_key = 2
+            blue_bonus_gem = 1
+            blue_bonus_dice = 1
+
 
         if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu :
 
@@ -323,16 +335,16 @@ class SalleManager:
 
             # OBJETS
             if item_choose == "Pièces":
-                contenu.append(("Pièces", random.randint(5, 20)))
+                contenu.append(("Pièces", random.randint(5 + blue_bonus_piece, 20 + blue_bonus_piece)))
 
             elif item_choose == "Clés":
-                contenu.append(("Clés", random.randint(1,4)))
+                contenu.append(("Clés", random.randint(1 + blue_bonus_key, 4 + blue_bonus_key)))
 
             elif item_choose == "Gemmes":
-                contenu.append(("Gemmes", random.randint(1,3)))
+                contenu.append(("Gemmes", random.randint(1 + blue_bonus_gem, 3 + blue_bonus_gem)))
 
             elif item_choose == "Dés":
-                contenu.append(("Dés", random.randint(1,2)))
+                contenu.append(("Dés", random.randint(1 + blue_bonus_dice, 2 + blue_bonus_dice)))
 
             # NOURRITURE
             elif item_choose in ["Pomme", "Banane", "Gâteau", "Sandwich"]:
