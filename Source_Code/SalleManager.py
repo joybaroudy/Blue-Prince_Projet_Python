@@ -297,13 +297,7 @@ class SalleManager:
     
         weights = self.get_item_weights(salle_ID)
 
-       
-
-        if color == "Blue" : # Les salles bleues donnent plus de loot au sol
-            blue_bonus_piece = 10
-            blue_bonus_key = 2
-            blue_bonus_gem = 1
-            blue_bonus_dice = 1
+        
 
 
         if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu :
@@ -321,6 +315,21 @@ class SalleManager:
 
       # 4) tirage du floor loot
       
+        bonus_piece = 0
+        bonus_key = 0
+        bonus_gem = 0
+        bonus_dice = 0
+
+        if color == "Blue" : # Les salles bleues donnent plus de loot au sol
+            bonus_piece = 10
+            bonus_key = 2
+            bonus_gem = 1
+            bonus_dice = 1
+
+        if color == "Red" : # Les salle rouges ont des Malus mais en contrepartie on peut trouver des items plus rares
+            bonus_gem = 2
+            bonus_dice = 2
+
         for _ in range(nb_items):
 
             r = random.uniform(0, total)
@@ -335,16 +344,16 @@ class SalleManager:
 
             # OBJETS
             if item_choose == "Pièces":
-                contenu.append(("Pièces", random.randint(5 + blue_bonus_piece, 20 + blue_bonus_piece)))
+                contenu.append(("Pièces", random.randint(5 + bonus_piece, 20 + bonus_piece)))
 
             elif item_choose == "Clés":
-                contenu.append(("Clés", random.randint(1 + blue_bonus_key, 4 + blue_bonus_key)))
+                contenu.append(("Clés", random.randint(1 + bonus_key, 4 + bonus_key)))
 
             elif item_choose == "Gemmes":
-                contenu.append(("Gemmes", random.randint(1 + blue_bonus_gem, 3 + blue_bonus_gem)))
+                contenu.append(("Gemmes", random.randint(1 + bonus_gem, 3 + bonus_gem)))
 
             elif item_choose == "Dés":
-                contenu.append(("Dés", random.randint(1 + blue_bonus_dice, 2 + blue_bonus_dice)))
+                contenu.append(("Dés", random.randint(1 + bonus_dice, 2 + bonus_dice)))
 
             # NOURRITURE
             elif item_choose in ["Pomme", "Banane", "Gâteau", "Sandwich"]:
