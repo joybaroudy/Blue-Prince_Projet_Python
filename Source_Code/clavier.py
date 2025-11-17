@@ -46,7 +46,7 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
 
     if not hasattr(gerer_clavier, "index_selection"):
         gerer_clavier.index_selection = 0
-
+    
 
     for evenement in pygame.event.get():
 
@@ -140,28 +140,19 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
                 print("Pas de tirage possible.")
                 continue
 
-            salle_selectionnee = tirage
-            tirage_effectuee = True
-            direction_choisi = direction
+                    # Ici, les deux salles ont bien une porte face à face → déplacement autorisé
+                    joueur.x, joueur.y = new_pos
+                    print(f"Déplacement dans une salle existante : {nom_salle_voisine}")
 
+                    # Appliquer les effets d'entrée de la salle
 
-        # ==== 2) TIRAGE EN COURS ====
-        elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
+                    effet = EffetsSalles(salle_id_voisine, salle_catalogue)
+                    effet.apply_entry_effects(inventaire)
 
-            nb_options = len(salle_selectionnee) + 1
+                    print(f"[EFFET] Effets appliqués : {effet.name}")
 
-            if evenement.key == pygame.K_q:
-                gerer_clavier.index_selection = (gerer_clavier.index_selection - 1) % nb_options
+                    
 
-            elif evenement.key == pygame.K_d:
-                gerer_clavier.index_selection = (gerer_clavier.index_selection + 1) % nb_options
-
-            elif evenement.key == pygame.K_RETURN:
-
-                choix = gerer_clavier.index_selection
-
-                # Option quitter
-                if choix == len(salle_selectionnee):
                     salle_selectionnee = None
                     tirage_effectuee = False
                     direction_choisi = None
@@ -193,18 +184,33 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
                 effet = EffetsSalles(salle_choisie, salle_catalogue)
                 effet.apply_entry_effects(inventaire)
 
-                # boutique
-                lancer_boutique_si_jaune(salle_choisie, salle_catalogue, inventaire)
+                print(f"[EFFET] Effets appliqués : {effet.name}")
 
-                # consommation pas
-                inventaire.objets_consommables["Pas"].changer_solde(-1)
+                
 
-                # affichage plateau
-                plateau[(joueur.x, joueur.y)] = nom_salle
+                new_pos=(joueur.x,joueur.y)
+                #Si on attaint l'antichambre
+                if plateau.get(new_pos)=="Antechamber" and inventaire.objets_consommables["Pas"].quantite>=0:
+                    print("Partie gagné")
+                    continuer=False
+                #Si plus de pas = partie perdue
+                elif inventaire.objets_consommables["Pas"].quantite<=0:
+                    print("VOus n'avez plus de pas.Vous avez perdue la partie") 
+                    continuer=False
 
-                salle_selectionnee = None
-                tirage_effectuee = False
-                direction_choisi = None
-                gerer_clavier.index_selection = 0
+                #On enregistre les nouvelles position du joueur=emplacement de la salle choisi
+                new_pos_x,new_pos_y=joueur.x,joueur.y
 
-    return continuer, salle_selectionnee, tirage_effectuee, direction_choisi
+                #On enregistre la salle choisie sur le plateau
+                plateau[(new_pos_x,new_pos_y)]=nom_salle
+
+                lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire)
+
+                    #Réinitialisation de tous les état
+                salle_selectionnee=None
+                tirage_effectuee=False
+                direction_choisi=None
+                gerer_clavier.index_selection=0
+    
+    return continuer,salle_selectionnee,tirage_effectuee, direction_choisi
+
