@@ -109,14 +109,14 @@ class Boutique:
             articles.append(
                 ArticleShop(
                     "Hammer",
-                    10,
+                    100,
                     lambda inv: _debloquer_permanent(inv, "Hammer")
                 )
             )
             articles.append(
                 ArticleShop(
                     "Lockpick Kit",
-                    12,
+                    120,
                     lambda inv: _debloquer_permanent(inv, "Lockpick Kit")
                 )
             )

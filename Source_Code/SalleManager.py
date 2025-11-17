@@ -4,6 +4,7 @@ from Salles import Salle, Case
 from Boutique import Boutique
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture 
 from Conteneurs import Coffre, Casier, Digspot
+from Boutique import Boutique, ArticleShop
 
 
 class SalleManager:
@@ -266,6 +267,13 @@ class SalleManager:
         return conteneurs
     
     def generer_contenu(self, salle_ID, inventaire : Inventaire, lucky_bonus=0.0):
+
+        if self.catalogue.salle_couleur_dict(salle_ID) == "Yellow" : 
+            
+            boutique = Boutique(catalogue.salles_names_dict.get(salle_ID))
+
+            return boutique
+
         """
         Génère :
         - conteneurs
