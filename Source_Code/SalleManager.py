@@ -270,7 +270,7 @@ class SalleManager:
 
         if self.catalogue.salle_couleur_dict(salle_ID) == "Yellow" : 
             
-            boutique = Boutique(catalogue.salles_names_dict.get(salle_ID))
+            boutique = Boutique(self.catalogue.salles_names_dict.get(salle_ID))
 
             return boutique
 
