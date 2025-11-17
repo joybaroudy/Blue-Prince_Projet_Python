@@ -36,6 +36,9 @@ joueur=Joueur(120,480)
 #On crée un plateau pour posée les salles choisie
 plateau={}
 
+# Dictionnaire pour mémoriser les portes ouvertes / fermées
+portes={}
+
 salle_catalogue = Salle()
 salle_manager = SalleManager(salle_catalogue)
 manoir = Manoir(salle_manager)
@@ -56,7 +59,7 @@ etat_partie=None #Gagné ou Perdu
 while continuer:
     #Gestion du clavier
     continuer,salle_selectionnee,tirage_effectuee, direction_choisi=gerer_clavier(
-        joueur,manoir,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire)
+        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes)
 
     #Affichage de l'écran
     affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi)
