@@ -5,8 +5,9 @@ from Inventory import Inventaire
 from SalleManager import SalleManager
 from Salles import Salle, Case
 from clavier import gerer_clavier
-from affichage import affichage_interface, charger_images, charger_Images_salles, afficher_items_salle
+from affichage import affichage_interface, charger_images, charger_Images_salles
 from Manoir import Manoir
+
 
 
 
@@ -61,7 +62,7 @@ while continuer:
         joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes)
 
     #Affichage de l'écran
-    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi, manoir)
+    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi)
 
     #Vérification de la partie
     if inventaire.objets_consommables["Pas"].quantite<=0:
