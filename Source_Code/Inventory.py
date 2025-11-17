@@ -66,6 +66,30 @@ class Inventaire:
             return True
         return False
     
+
+    def solde_gemmes(self):
+        """Retourne le nombre actuel de gemmes."""
+        return self.objets_consommables["Gemmes"].quantite
+
+    def ajouter_gemmes(self, n: int):
+        """Ajoute n gemmes (ou en enlève si n < 0)."""
+        if n == 0:
+            return
+        self.objets_consommables["Gemmes"].changer_solde(n)
+
+    def depenser_gemmes(self, n: int) -> bool:
+        """
+        Tente de dépenser n gemmes.
+        Renvoie True si le paiement a réussi, False sinon.
+        """
+        if n < 0:
+            return False
+        if self.solde_gemmes() >= n:
+            self.objets_consommables["Gemmes"].changer_solde(-n)
+            return True
+        return False
+
+    
 class Objet:
     """Classe de base pour tout objet du jeu."""
     def __init__(self, nom=None):

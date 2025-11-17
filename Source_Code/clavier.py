@@ -208,6 +208,20 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 nom_salle=salle_catalogue.salles_names_dict.get(salle_choisie,"Inconnue")
                 print(f"Salle choisie : {salle_choisie} ({nom_salle})")
 
+                prix_salle = salle_catalogue.salles_price_dict.get(salle_choisie, 0)
+
+                #partie gemmes
+                if prix_salle > 0:
+                    # tentative de paiement
+                    if not inventaire.depenser_gemmes(prix_salle):
+                        print(
+                            f"Pas assez de gemmes pour {nom_salle} : "
+                            f"{prix_salle} requis, vous avez {inventaire.solde_gemmes()}."
+                        )
+                        # On laisse le tirage actif, le joueur peut choisir une autre salle
+                        continue
+                #fin partie gemmes
+
                 if direction_choisi=="gauche":
                     joueur.deplacement(-1,0)
                 elif direction_choisi=="droite":

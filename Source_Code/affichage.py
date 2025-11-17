@@ -222,6 +222,18 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
             y=pos_y
             screen.blit(img, (x,y))
 
+            #Partie gemmes
+            prix = salle_catalogue.salles_price_dict.get(salle_id, 0)
+            if prix > 0:
+                texte_prix = font.render(f"{prix} gemmes", True, (150, 0, 0))
+            else:
+                texte_prix = font.render("Gratuit", True, (0, 120, 0))
+
+            
+            screen.blit(texte_prix, (x, y + 165))
+            #fin partie gemmes
+
+
             # Si c’est la salle actuellement sélectionnée, on dessine un cadre rouge
             if i == getattr(clavier.gerer_clavier, "index_selection", 0):
                 pygame.draw.rect(screen, (255, 0, 0), (x - 5, y - 5, 170, 170), 4)
