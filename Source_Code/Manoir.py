@@ -40,7 +40,7 @@ class Manoir:
         Appelé quand le joueur entre dans une salle.
         Si première visite :
             - créer la salle (tirer ID)
-            - générer le loot de sallgie
+            - générer le loot de salle
             - générer les conteneurs (mais pas leur contenu)
         Sinon, on ne change rien : on revient dans l'état précédent.
         """
@@ -76,7 +76,7 @@ class Manoir:
             return None  # pas de porte ici
 
         if not door.tirage_done:
-            results = self.salle_manager.tirage_salles(coord, direction)
+            results = self.salle_manager.tirage_salles(coordonnees=coord, porte_index=direction)
             door.tirage_results = results
             door.tirage_done = True
             door.opened = True
@@ -90,6 +90,42 @@ class Manoir:
     
     def get_digspots(self, coord):
         return self.grid[coord].digspots
+    
+    
+    def set_room(self, coord, salle_id):
+        """
+        Assigne manuellement un ID de salle à une RoomCell existante.
+        Utilisé lorsqu'une salle est choisie depuis un tirage.
+        """
+        cell = self.grid[coord]
+        cell.room_id = salle_id
+        cell.explored = True
+
+    def setup_room_content(self, coord):
+        """
+        Génère loot + conteneurs + digspots pour une salle existante.
+        """
+        cell = self.grid[coord]
+        salle_id = cell.room_id
+
+        cell.loot_on_ground = self.salle_manager.generer_contenu(salle_id)
+        cell.containers = self.salle_manager.generer_conteneurs(salle_id)
+        cell.digspots = self.salle_manager.generer_digspots(salle_id)
+
+        return cell
+
+    def has_room(self, coord):
+        """Retourne True si une salle est déjà posée ici."""
+        return self.grid[coord].room_id is not None
+
+    def get_room_id(self, coord):
+        """Retourne l'ID de salle stocké à une coordonnée."""
+        return self.grid[coord].room_id
+
+    def enter_existing_room(self, coord):
+        """Retourne la RoomCell existante."""
+        return self.grid[coord]
+
     
 
     
