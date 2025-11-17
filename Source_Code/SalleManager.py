@@ -2,7 +2,7 @@ import random
 
 from Salles import Salle, Case
 from Boutique import Boutique
-from Inventory import ObjetConsommable, ObjetPermanent, Nourriture 
+from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture 
 from Conteneurs import Coffre, Casier, Digspot
 
 
@@ -209,7 +209,7 @@ class SalleManager:
 
 
     #  Lucky bonus (augmente la probabilité d’objets rares)
-    def apply_lucky_bonus(self, weights, bonus_factor):
+    def apply_lucky_bonus(self, weights, bonus_factor = 0.2):
         
         premium_items = [
             "Gemmes", "Shovel", "Hammer", "Metal Detector",
@@ -217,6 +217,15 @@ class SalleManager:
         ]
 
         for item in premium_items:
+            if item in weights:
+                weights[item] *= (1 + bonus_factor)
+        return weights
+    
+    def apply_metal_detector_bonus(self, weights, bonus_factor = 0.3):
+        
+        metal_items = ["Clés", "Pièces"]
+
+        for item in metal_items:
             if item in weights:
                 weights[item] *= (1 + bonus_factor)
         return weights
@@ -256,7 +265,7 @@ class SalleManager:
 
         return conteneurs
     
-    def generer_contenu(self, salle_ID, inventaire=None, lucky_bonus=0.0):
+    def generer_contenu(self, salle_ID, inventaire : Inventaire, lucky_bonus=0.0):
         """
         Génère :
         - conteneurs
@@ -274,10 +283,19 @@ class SalleManager:
             contenu.extend(self.generer_digspots(salle_ID, inventaire))
 
   
-        # 3) poids des loots + bonus
+        # 3) poids des loots + bonus (Patte de lapin + Detecteur de métaux)
     
         weights = self.get_item_weights(salle_ID)
-        weights = self.apply_lucky_bonus(weights, lucky_bonus)
+
+        if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu :
+
+            lucky_bonus = 0.2
+            weights = self.apply_lucky_bonus(weights, lucky_bonus)
+
+        if inventaire.objets_permanents["Metal Detector"].obtenu :
+
+            metal_detector_bonus = 0.3
+            weights = self.apply_metal_detector_bonus(weights, metal_detector_bonus)
 
         total = sum(weights.values())
         nb_items = random.randint(1, 3)
