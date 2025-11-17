@@ -111,34 +111,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu + 60)
 
 
-                #Ajout de la gestion des portes
-                
-                # On identifie une porte par : position actuelle + direction
-                cle_porte = (x_actu, y_actu, direction)
-
-                # Si c'est la première fois qu'on utilise cette porte, on la crée
-                porte_obj = portes_dict.get(cle_porte)
-                if porte_obj is None:
-                    row, col = pixel_to_case(x_actu, y_actu)
-                    porte_obj = Porte([row, col])
-                    portes_dict[cle_porte] = porte_obj
-
-                # Demande au joueur s'il veut vraiment ouvrir (clé / lockpick / gratuit)
-                ouverte = porte_obj.demander_ouverture_porte(inventaire)
-                if not ouverte:
-                    print("Vous laissez la porte fermée.")
-                    continue  # on annule le déplacement/tirage
-
-                # Si la porte est ouverte, on crée aussi l'entrée inverse pour ne pas repayer
-                OPPOSITE_DIR = {
-                    "gauche": "droite",
-                    "droite": "gauche",
-                    "haut": "bas",
-                    "bas": "haut",
-                }
-                dir_retour = OPPOSITE_DIR[direction]
-                x_new, y_new = new_pos
-                portes_dict[(x_new, y_new, dir_retour)] = porte_obj
+            
                 
                 #Limite de la zone du jeu
                 limite_gauche=0
@@ -250,6 +223,29 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 salle_choisie=salle_selectionnee[choix]
                 nom_salle=salle_catalogue.salles_names_dict.get(salle_choisie,"Inconnue")
                 print(f"Salle choisie : {salle_choisie} ({nom_salle})")
+
+                                # --- GESTION DE LA PORTE : seulement pour une nouvelle salle ---
+                
+
+                # On crée une porte en fonction de la case actuelle du joueur
+                row, col = pixel_to_case(joueur.x, joueur.y)
+                porte_temp = Porte([row, col])
+
+                # Si la salle actuelle est l'Entrance Hall -> porte forcée niveau 0
+                if plateau.get((joueur.x, joueur.y)) == "Entrance Hall":
+                    porte_temp.level = 0
+                    porte_temp.cout = 0
+                    porte_temp.double_tour = False
+
+                # On demande au joueur s'il veut ouvrir cette porte
+                ouverte = porte_temp.demander_ouverture_porte(inventaire)
+                if not ouverte:
+                    print("Vous laissez la porte fermée, la nouvelle salle n'est pas révélée.")
+                    # On reste dans l'état de tirage : il peut choisir une autre salle
+                    continue
+                # --- fin gestion porte ---
+
+
 
                 prix_salle = salle_catalogue.salles_price_dict.get(salle_choisie, 0)
 
