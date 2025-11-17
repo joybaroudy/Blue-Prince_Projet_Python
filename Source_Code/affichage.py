@@ -1,5 +1,7 @@
 import pygame
 import clavier
+from Conteneurs import Casier, Coffre, Digspot
+from Boutique import Boutique
 
 def charger_Images_salles():
     return{ #Salle bleue
@@ -141,7 +143,7 @@ def afficher_direction(screen, direction_choisi,font,joueur):
     #Dessine le triangle
     pygame.draw.polygon(screen,couleur,fleche)
 
-def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau,direction_choisi):
+def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau,direction_choisi, manoir):
 
     ecran_jeu=300
     width,height=screen.get_size()
@@ -166,6 +168,9 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         if nom_salle in images_salles:
             salle_img=pygame.transform.scale(images_salles[nom_salle],(60,60))
             screen.blit(salle_img,(x,y))
+
+
+    
 
     #Dans l'inventaire
     #Texte dans l'inventaire
@@ -259,3 +264,76 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         afficher_direction(screen,direction_choisi,font,joueur)
     
     pygame.display.flip()
+
+    #  AFFICHAGE DES ITEMS DE LA SALLE SELECTIONNEE
+
+    player_pos = (joueur.x, joueur.y)
+    cell = manoir.grid.get(player_pos)
+
+    if cell is not None:
+        small_font = pygame.font.SysFont("arial", 20)
+        afficher_items_salle(screen, cell, small_font)
+
+
+
+
+def afficher_items_salle(screen, cell, font):
+    """
+    Affiche les objets présents dans une salle :
+    - loot au sol
+    - conteneurs (coffres, casiers, digspots)
+    - boutique
+    """
+
+    x = 40
+    y = 400   # Zone bas de l'écran
+    line_h = 28
+
+    pygame.draw.rect(screen, (0, 0, 0), (20, 380, 760, 220))
+    titre = font.render("Objets dans la salle :", True, (255, 255, 0))
+    screen.blit(titre, (x, y))
+    y += 40
+
+    
+    if not cell.loot_on_ground:
+        txt = font.render("Aucun objet au sol.", True, (180, 180, 180))
+        screen.blit(txt, (x, y))
+        y += line_h
+    else:
+        txt = font.render("Au sol :", True, (200, 200, 255))
+        screen.blit(txt, (x, y))
+        y += line_h
+
+        for item in cell.loot_on_ground:
+            if isinstance(item, tuple):
+                nom, qte = item
+                texte = f"{nom} x{qte}"
+            else:
+                texte = type(item).__name__
+
+            txt = font.render(" - " + texte, True, (220, 220, 220))
+            screen.blit(txt, (x+20, y))
+            y += line_h
+
+    
+    conts = [c for c in cell.loot_on_ground if isinstance(c, (Coffre, Casier, Digspot))]
+    if conts:
+        txt = font.render("Conteneurs :", True, (255, 190, 160))
+        screen.blit(txt, (x, y))
+        y += line_h
+
+        for c in conts:
+            etat = "Ouvert" if c.ouvert else "Fermé"
+            name = type(c).__name__
+            txt = font.render(f" - {name} ({etat})", True, (200, 180, 180))
+            screen.blit(txt, (x+20, y))
+            y += line_h
+
+    # --- 3) Boutique ---
+    shops = [s for s in cell.loot_on_ground if isinstance(s, Boutique)]
+    if shops:
+        txt = font.render("Boutique présente (Entrer pour ouvrir).", True, (255, 255, 100))
+        screen.blit(txt, (x, y))
+        y += line_h
+
+    pygame.display.update()

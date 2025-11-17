@@ -196,3 +196,70 @@ class TraitementLoot :
             pygame.display.flip()
             clock.tick(30)
 
+
+
+def afficher_loot_salle(screen, cell, inventaire):
+    """
+    Affiche:
+      - le floor loot
+      - les conteneurs et leur état
+      - les digspots
+    Permet l’interaction (ouvrir, ramasser...).
+    """
+
+    font = pygame.font.SysFont(None, 24)
+    WIDTH, HEIGHT = screen.get_size()
+
+    x = 20
+    y = HEIGHT - 250   # bas de l’écran
+
+    txt = font.render("Objets au sol :", True, (255, 255, 0))
+    screen.blit(txt, (x, y))
+    y += 25
+
+    for i, obj in enumerate(cell.loot_on_ground):
+        if isinstance(obj, tuple):
+            nom, quantite = obj
+            line = f"[{i}] {nom} x{quantite}"
+        else:
+            line = f"[{i}] {obj}"
+
+        screen.blit(font.render(line, True, (255, 255, 255)), (x, y))
+        y += 20
+
+    y += 20
+
+    txt = font.render("Conteneurs :", True, (0, 200, 255))
+    screen.blit(txt, (x, y))
+    y += 25
+
+    for i, cont in enumerate(cell.containers):
+        etat = "ouvert" if cont.ouvert else "fermé"
+        line = f"[C{i}] {cont.__class__.__name__} ({etat})"
+        screen.blit(font.render(line, True, (200, 200, 200)), (x, y))
+        y += 20
+
+        # Si ouvert, afficher le contenu
+        if cont.ouvert:
+            for obj in cont.contenu:
+                if isinstance(obj, tuple):
+                    nom, q = obj
+                    line = f"     - {nom} x{q}"
+                elif isinstance(obj, Nourriture):
+                    line = f"     - {obj.nom} (food)"
+                else:
+                    line = f"     - {obj}"
+                screen.blit(font.render(line, True, (150, 220, 150)), (x + 20, y))
+                y += 18
+
+    y += 20
+
+    txt = font.render("Digspots :", True, (255, 150, 100))
+    screen.blit(txt, (x, y))
+    y += 25
+
+    for i, dig in enumerate(cell.digspots):
+        etat = "ouvert" if dig.ouvert else "fermé"
+        line = f"[D{i}] Digspot ({etat})"
+        screen.blit(font.render(line, True, (220, 180, 180)), (x, y))
+        y += 20

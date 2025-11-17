@@ -50,7 +50,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
     # Initialiser l'index de sélection une fois
     if not hasattr(gerer_clavier, "index_selection"):
         gerer_clavier.index_selection = 0
-
+    
 
     for evenement in pygame.event.get():
         if evenement.type == pygame.QUIT:
@@ -160,6 +160,8 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     effet.apply_entry_effects(inventaire)
 
                     print(f"[EFFET] Effets appliqués : {effet.name}")
+
+                    
 
                     salle_selectionnee = None
                     tirage_effectuee = False
@@ -281,6 +283,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
 
                 print(f"[EFFET] Effets appliqués : {effet.name}")
 
+                
 
                 new_pos=(joueur.x,joueur.y)
                 #Si on attaint l'antichambre
