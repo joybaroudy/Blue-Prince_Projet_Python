@@ -19,6 +19,15 @@ class EffetsSalles :
         
         elif self.name == "Gymnasium" : 
             inventaire.objets_consommables["Pas"].changer_solde(int(-2))
+        
+        elif self.name == "Chapel" : 
+            inventaire.objets_consommables["Pièces"].changer_solde(int(-1))
+
+    def apply_weights_effects(self, weights) :
+
+        if self.name == "Maid's Chamber" : 
+            for key in weights :
+                weights[key] = 0
 
 
 

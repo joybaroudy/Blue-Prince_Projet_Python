@@ -4,6 +4,8 @@ from Salles import Salle, Case
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture 
 from Conteneurs import Coffre, Casier, Digspot
 from Boutique import Boutique, ArticleShop
+from EffetsSalles import EffetsSalles
+
 
 
 class SalleManager:
@@ -252,14 +254,14 @@ class SalleManager:
         name = self.catalogue.salles_names_dict(salle_ID)
         conteneurs = []
 
-        # Locker Room → 1 à 3 casiers garantis
+        # Locker Room : 1 à 3 casiers garantis
         if name == "Locker Room":
             nb = random.randint(1, 3)
             for _ in range(nb):
                 conteneurs.append(Casier())
         
 
-        # Coffre → rare + rareté
+        # Coffre : rare + rareté
         proba_coffre = 0.1 + 0.05 * rarete
         if random.random() < proba_coffre:
             conteneurs.append(Coffre())
@@ -298,6 +300,12 @@ class SalleManager:
         weights = self.get_item_weights(salle_ID)
 
         
+        effets = EffetsSalles(salle_ID, self.catalogue)
+        weights = effets.apply_weights_effects(weights)
+
+        # éviter le bug "tous weights = 0"
+        if all(v == 0 for v in weights.values()):
+            weights["Pièces"] = 1
 
 
         if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu :
