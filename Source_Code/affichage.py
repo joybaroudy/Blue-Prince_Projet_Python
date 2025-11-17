@@ -104,7 +104,7 @@ def charger_images():
     return{
         #Faudra faire attention avec les lien de sources d'images
         #Salle à placé dans la partie jeu au tout début
-        "space_room": pygame.image.load("Image_initial/Antechamber_Icon.webp").convert(),
+        "Antechamber": pygame.image.load("Image_initial/Antechamber_Icon.webp").convert(),
         "entrance_room":pygame.image.load("Image_initial/entrance_hall.png").convert(),
 
         #Objet consommable dans l'inventaire
@@ -194,7 +194,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         screen.blit(texte,(width-30,y))
 
     #Placement de la salle finale
-    finale_room=pygame.transform.scale(images["space_room"],(60,60))
+    finale_room=pygame.transform.scale(images["Antechamber"],(60,60))
     screen.blit(finale_room, (120, 0))
 
     #Placement de la salle initial
