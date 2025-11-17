@@ -449,12 +449,12 @@ class Salle:
             "ID61" : "Not Edge",
             "ID62" : "Edge",
             "ID63" : "Edge",
-            "ID64" : "Edge",
-            "ID65" : "Edge",
+            "ID64" : "Normal",
+            "ID65" : "Not Edge",
             "ID66" : "Edge",
             "ID67" : "Edge",
             "ID68" : "Normal",
-            "ID69" : "Edge",
+            "ID69" : "Not Edge",
             "ID70" : "Normal",
             "ID71" : "Normal",
             "ID72" : "Normal",
@@ -678,21 +678,6 @@ class Salle:
             return case.position == "Corner"
         else : 
             return case.position != "Edge" and case.position != "Corner"
-
-
-
-
-
-
-
-
-        # if cond is None:
-        #     return True
-        # if cond == "Not Edge":
-        #     return case.position != "Edge" and case.position != "Corner"
-        # return cond == case.position
-
-
 
 
 
