@@ -50,6 +50,15 @@ class Manoir:
             # 1) Tirer une salle 
             cell.room_id = self.salle_manager.tirage_salles(coord)
 
+            # Initialiser l'existence des portes SANS rotation
+            template_ports = self.salle_manager.catalogue.salle_porte_emplacement_dict.get(cell.room_id)
+
+            if template_ports:
+                # template_ports est dans l'ordre : [Sud, Ouest, Nord, Est]
+                for i in range(4):
+                    cell.doors[i].exists = bool(template_ports[i])
+
+
             # 2) Générer loot de salle
             cell.loot_on_ground = self.salle_manager.generer_contenu(cell.room_id)
 

@@ -19,6 +19,12 @@ def pixel_to_case(x, y, cell_size=60):
     row = y // cell_size + 1
     return (col, row)
 
+def pixel_to_coord_manoir(x_px, y_px, cell_size=60):
+    row = y_px // cell_size + 1
+    col = x_px // cell_size + 1
+    return (col, row)
+
+
 
 def lancer_boutique_si_jaune(room_id, salle_catalogue, inventaire):
     if room_id is None:
@@ -34,7 +40,7 @@ def lancer_boutique_si_jaune(room_id, salle_catalogue, inventaire):
 
 
 def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau, inventaire):
+                  tirage_effectuee, direction_choisi, plateau, inventaire, portes_dict = None):
 
     continuer = True
 
@@ -83,10 +89,11 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
                 continue
 
             # ==== COORDONNÉES GRILLE ====
-            coord_actu = pixel_to_case(x_actu, y_actu)
-            coord_new = pixel_to_case(x_new, y_new)
+            coord_manoir = pixel_to_coord_manoir(x_new, y_new)
+            tirage = manoir.open_door(coord_manoir, porte_index_depart)
 
-            porte = manoir.get_door(coord_actu, porte_index_depart)
+
+            porte = manoir.get_door(coord_manoir, porte_index_depart)
 
             if not porte.exists:
                 print("Pas de porte dans cette direction.")
@@ -127,7 +134,7 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
                 continue
 
             # CAS 2 : Nouvelle salle → tirage via Manoir
-            tirage = manoir.open_door(coord_actu, porte_index_depart)
+            tirage = manoir.open_door(coord_manoir, porte_index_depart)
 
             if not tirage:
                 print("Pas de tirage possible.")
@@ -174,7 +181,7 @@ def gerer_clavier(joueur, manoir, salle_catalogue, salle_selectionnee,
                 elif direction_choisi == "bas":
                     joueur.y += 60
 
-                coord_new = pixel_to_case(joueur.x, joueur.y)
+                coord_new = pixel_to_coord_manoir(joueur.x, joueur.y)
 
                 # enregistre la salle
                 manoir.set_room(coord_new, salle_choisie)
