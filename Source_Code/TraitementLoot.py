@@ -3,6 +3,7 @@ from Conteneurs import Coffre, Casier, Digspot
 from RoomCell import RoomCell
 from Manoir import Manoir
 import pygame
+from Boutique import Boutique
 
 
 
@@ -100,6 +101,9 @@ class TraitementLoot :
                 # Le conteneur est vidé -> on retire du sol
                 loot_restant.remove(item)
                 continue
+
+            elif isinstance(item, Boutique) : 
+                pass
 
         cell.loot_on_ground = loot_restant
 
