@@ -50,9 +50,11 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
             if direction:
                 # position actuelle du joueur
                 x_actu, y_actu = joueur.x, joueur.y
+                print(f"[DEBUG] direction={direction}, pos_actuelle=({x_actu},{y_actu})")
 
                 # 1) récupérer la salle actuelle sur le plateau
                 nom_salle_actuelle = plateau.get((x_actu, y_actu))
+                print(f"[DEBUG] salle actuelle : {nom_salle_actuelle}")
                 if not nom_salle_actuelle:
                     # normalement ça ne devrait pas arriver si le plateau est bien rempli
                     print("Aucune salle à la position actuelle du joueur.")
@@ -93,6 +95,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 limite_bas=480
 
                 x_new,y_new=new_pos
+                print(f"[DEBUG] new_pos=({x_new},{y_new}), limites=({limite_gauche},{limite_droite},{limite_haut},{limite_bas})")
                 if x_new<limite_gauche or x_new>limite_droite or y_new<limite_haut or y_new>limite_bas:
                     print("impossible de dépasser")
                     continue

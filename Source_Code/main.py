@@ -6,6 +6,10 @@ from SalleManager import SalleManager
 from Salles import Salle, Case
 from clavier import gerer_clavier
 from affichage import affichage_interface, charger_images, charger_Images_salles
+from Manoir import Manoir
+
+
+
 
 #Initialisation
 pygame.init()
@@ -31,6 +35,10 @@ joueur=Joueur(120,480)
 
 #On crée un plateau pour posée les salles choisie
 plateau={}
+
+salle_catalogue = Salle()
+salle_manager = SalleManager(salle_catalogue)
+manoir = Manoir(salle_manager)
 
 #Position de départ: salle d'entrée
 plateau[(120,480)]="Entrance Hall"
@@ -71,3 +79,5 @@ screen.blit(texte, (width//2-200,height//2))
 pygame.display.flip()
 pygame.time.wait(3000)
 pygame.quit()
+
+
