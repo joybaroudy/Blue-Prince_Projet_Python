@@ -1,4 +1,4 @@
-
+from Salles import Salle
 
 # Etat des portes (existantes ou pas)
 
@@ -36,5 +36,13 @@ class RoomCell:
         self.digspots = []        # digspots à garder
         self.rotation = rotation # degre de rotation
 
-        self.doors = [DoorState(False) for _ in range(4)]  # [S, O, N, E]
+        self.doors =  []
+        
+        if self.coordonnees ==  (1,3) : # Initialisation pour entrance Hall
+            self.explored = True
+            self.room_id = "ID2"
+
+
+        
+
 
