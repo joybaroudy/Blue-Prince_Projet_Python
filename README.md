@@ -43,13 +43,13 @@ Source_Code/
 
 
 **3. Installation**
-1. Installer Python
+1. Installer Python.
 Téléchargement :
 https://www.python.org/downloads/
 
 Assurez-vous d’activer “Add to PATH”.
 
-2. Installer les dépendances
+2. Installer les dépendances.
 Depuis un terminal dans Source_Code :
 pip install pygame
 
@@ -60,15 +60,15 @@ Toujours dans Source_Code : Ecrire : **python main.py** et executer
 
 
 **4. Commandes du jeu**
-Touche	Action
-Z / ↑	Monter
-S / ↓	Descendre
-Q / ←	Aller à gauche
-D / →	Aller à droite
-Entrée	Confirmer un choix lors d’un tirage
-O	Ouvrir une porte / coffre / conteneur
-N	Ne pas ouvrir
-Quitter fenêtre	Fermer le jeu
+Touche	Action:
+Z / ↑	Monter,
+S / ↓	Descendre,
+Q / ←	Aller à gauche,
+D / →	Aller à droite,
+Entrée	Confirmer un choix lors d’un tirage:
+O	Ouvrir une porte / coffre / conteneur,
+N	Ne pas ouvrir,
+Quitter fenêtre	Fermer le jeu.
 
 
 
@@ -78,11 +78,11 @@ Quitter fenêtre	Fermer le jeu
 Le manoir est une grille 5 × 9 gérée par Manoir.py.
 Chaque case (RoomCell) contient :
 
-l’ID de la salle
-les conteneurs et digspots
-le loot au sol
-les portes + niveaux de verrouillage
-un statut explored persisté
+l’ID de la salle,
+les conteneurs et digspots,
+le loot au sol,
+les portes + niveaux de verrouillage,
+un statut explored persisté,
 Une salle n’est tirée et générée qu’à la première visite.
 
 
@@ -90,38 +90,36 @@ Une salle n’est tirée et générée qu’à la première visite.
 **6. Tirage des salles (SalleManager)**
 
 Le tirage dépend de :
-la rareté et le prix
-les portes disponibles
-la position
-les conditions (Corner, Edge, Normal)
-
-les règles de priorité (au moins une salle gratuite au début)
+la rareté et le prix,
+les portes disponibles,
+la position,
+les conditions (Corner, Edge, Normal),
+les règles de priorité (au moins une salle gratuite au début).
 
 
 
 **7. Les niveaux des portes :**
-
-0 → gratuit
-1 → clé OU lockpick
-2 → clé obligatoire
-
+    0 → gratuit,
+    1 → clé OU lockpick,
+    2 → clé obligatoire.
 
 
-**8. Système de loot**
-Loot au sol
+
+**8. Système de loot :**
+Loot peut être trouvé au sol
 Tiré à l'entrée de la salle (rare, aléatoire, modifié par bonus/permanents).
-Coffres (Coffre)
-1. une clé requise
-2. Ouverts gratuitement si Hammer est possédé
-Casiers (Casier)
-1. uniquement des consommables
-2. toujours 1 clé
+Coffres (Coffre):
+1. une clé requise,
+2. Ouverts gratuitement si Hammer est possédé,
+Casiers (Casier):
+1. uniquement des consommables,
+2. toujours 1 clé,
 Digspots (Digspot) :
-1. uniquement dans salles Green
-2. nécessite Shovel
+1. uniquement dans salles Green,
+2. nécessite Shovel,
 
 
 
 **9. Boutiques (salles jaunes)**
-Ouvrent automatiquement une boutique (gérée dans TraitementBoutique.py).
+Ouvrent automatiquement une boutique.
 Permettent d’acheter divers objets.
