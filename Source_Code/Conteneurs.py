@@ -186,6 +186,11 @@ class Digspot:
             self.ouvert = True
             return True
         return False
+    
+
+
+
+    
 
 
 
