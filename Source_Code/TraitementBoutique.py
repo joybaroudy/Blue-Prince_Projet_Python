@@ -101,7 +101,7 @@ class TraitementBoutique:
                 txt_msg = font.render(message, True, (0, 200, 0))
                 screen.blit(
                     txt_msg,
-                    (WIDTH // 2 - txt_msg.get_width() // 2, HEIGHT - 60),
+                    (WIDTH // 2 - txt_msg.get_width() // 2, HEIGHT - 240),
                 )
 
             #Dessin du bouton "Fermer Boutique"
