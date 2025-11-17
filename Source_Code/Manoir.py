@@ -31,11 +31,11 @@ class Manoir:
         """direction = 0: Nord, 1: Est, 2: Sud, 3: Ouest"""
         self.grid[coord].doors[direction].exists = exists
 
-    def get_door(self, coord, direction): # 
+    def get_door(self, coord : list, direction): # 
         return self.grid[coord].doors[direction]
 
 
-    def enter_room(self, coord):
+    def enter_room(self, coord, new_room_ID):
         """
         Appelé quand le joueur entre dans une salle.
         Si première visite :
@@ -46,9 +46,20 @@ class Manoir:
         """
         cell = self.grid[coord]
 
+        # 1) ID de la salle entrée
+        cell.room_id = new_room_ID
+
+        # Initialiser l'existence des portes SANS rotation
+        template_ports = self.salle_manager.catalogue.salle_porte_emplacement_dict[str(int(cell.room_id))]
+
+        if template_ports:
+            # template_ports est dans l'ordre : [Sud, Ouest, Nord, Est]
+            for i in range(4):
+                cell.doors[i].exists = bool(template_ports[i])
+
         if not cell.explored:
-            # 1) Tirer une salle 
-            cell.room_id = self.salle_manager.tirage_salles(coord)
+  
+
 
             # 2) Générer loot de salle
             cell.loot_on_ground = self.salle_manager.generer_contenu(cell.room_id)
