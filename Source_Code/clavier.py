@@ -102,25 +102,46 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
 
                 # 5) si une salle existe déjà -> déplacement simple
                 if new_pos in plateau:
+                    # Nom de la salle voisine
+                    nom_salle_voisine = plateau[new_pos]
+                    salle_id_voisine = salle_catalogue.name_to_id.get(nom_salle_voisine)
+
+                    if salle_id_voisine is None:
+                        print(f"[WARN] Salle voisine inconnue dans le catalogue : {nom_salle_voisine}")
+                        continue
+
+                    portes_voisine = salle_catalogue.salle_porte_emplacement_dict.get(salle_id_voisine)
+                    if portes_voisine is None:
+                        print(f"[WARN] Aucune info de portes pour la salle voisine {nom_salle_voisine}")
+                        continue
+
+                    # On veut la PORTE OPPOSÉE dans la salle voisine
+                    OPPOSITE = {0: 2, 2: 0, 1: 3, 3: 1}
+                    porte_index_arrivee = OPPOSITE[porte_index_depart]
+
+                    if not portes_voisine[porte_index_arrivee]:
+                        # La salle voisine n'a pas de porte en face → mur
+                        print(f"Impossible d'entrer dans {nom_salle_voisine} : pas de porte en face (mur).")
+                        continue
+
+                    # Ici, les deux salles ont bien une porte face à face → déplacement autorisé
                     joueur.x, joueur.y = new_pos
-                    print(f"Déplacement dans une salle existante : {plateau[new_pos]}")
+                    print(f"Déplacement dans une salle existante : {nom_salle_voisine}")
                     salle_selectionnee = None
                     tirage_effectuee = False
                     direction_choisi = None
 
-                    #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
-                    inventaire.objets_consommables["Pas"].quantite-=1
-                    print("Pas restant:{inventaire.objets_consommables['Pas'].quantite}")
+                    # Consommation de pas + logique victoire/défaite
+                    inventaire.objets_consommables['Pas'].quantite -= 1
+                    print(f"Pas restants : {inventaire.objets_consommables['Pas'].quantite}")
 
-                    #Si on attaint l'antichambre
-                    if plateau.get(new_pos)=="Antechamber" and inventaire.objets_consommables["Pas"].quantite>=0:
-                        print("Partie gagné")
-                        continuer=False
-                
-                    #Si plus de pas = partie perdue
-                    elif inventaire.objets_consommables["Pas"].quantite<=0:
-                        print("VOus n'avez plus de pas.Vous avez perdue la partie") 
-                        continuer=False
+                    if plateau.get(new_pos) == "Antechamber" and inventaire.objets_consommables["Pas"].quantite >= 0:
+                        print("Partie gagnée")
+                        continuer = False
+                    elif inventaire.objets_consommables["Pas"].quantite <= 0:
+                        print("Vous n'avez plus de pas. Vous avez perdu la partie.")
+                        continuer = False
+
 
                 # 6) sinon -> on tente un tirage de nouvelles salles
                 else:
