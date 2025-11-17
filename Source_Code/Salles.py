@@ -693,6 +693,15 @@ class Porte:
     def __init__(self, coordonnees):
         r, c = coordonnees
 
+        #CAS SPÉCIAL : portes autour de l'Entrance Hall (case [9,3])
+        
+        if (r, c) == (9, 3):
+            self.cout = 0
+            self.ouvert = True       # on considère qu'elles sont déjà ouvertes
+            self.double_tour = False
+            self.level = 0
+            return
+
         weight_cout_0 = 1 * (1 - (c / 9))
         weight_cout_1 = 1 * (c / 9)
 
