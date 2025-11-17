@@ -108,82 +108,82 @@ class TraitementLoot :
         cell.loot_on_ground = loot_restant
 
 
-@staticmethod
-def demander_ouverture_conteneur(container, inventaire):
-    """
-    Popup Pygame : demande au joueur s'il veut ouvrir le conteneur.
-    Le texte dépend automatiquement du type de conteneur.
-    """
+    @staticmethod
+    def demander_ouverture_conteneur(container, inventaire):
+        """
+        Popup Pygame : demande au joueur s'il veut ouvrir le conteneur.
+        Le texte dépend automatiquement du type de conteneur.
+        """
 
-    pygame.init()
+        pygame.init()
 
-    # Fenêtre
-    WIDTH, HEIGHT = 500, 240
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Confirmation d'ouverture")
+        # Fenêtre
+        WIDTH, HEIGHT = 500, 240
+        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        pygame.display.set_caption("Confirmation d'ouverture")
 
-    font = pygame.font.SysFont(None, 28)
+        font = pygame.font.SysFont(None, 28)
 
-    # ---- TEXTE SPÉCIFIQUE SELON LE TYPE DE CONTENEUR ----
-    nom = type(container).__name__
+        # ---- TEXTE SPÉCIFIQUE SELON LE TYPE DE CONTENEUR ----
+        nom = type(container).__name__
 
-    if nom == "Casier":
-        texte_str = "Voulez-vous ouvrir le casier pour 1 clé ?"
+        if nom == "Casier":
+            texte_str = "Voulez-vous ouvrir le casier pour 1 clé ?"
 
-    elif nom == "Coffre":
-        hammer = inventaire.objets_permanents["Hammer"]
-        if hammer.obtenu:
-            texte_str = "Voulez-vous ouvrir le coffre gratuitement (Marteau Débloqué) ?"
-        else:
-            texte_str = "Voulez-vous ouvrir le coffre pour 1 clé ?"
+        elif nom == "Coffre":
+            hammer = inventaire.objets_permanents["Hammer"]
+            if hammer.obtenu:
+                texte_str = "Voulez-vous ouvrir le coffre gratuitement (Marteau Débloqué) ?"
+            else:
+                texte_str = "Voulez-vous ouvrir le coffre pour 1 clé ?"
 
-    elif nom == "Digspot":
-        texte_str = "Voulez-vous creuser ?"
+        elif nom == "Digspot":
+            texte_str = "Voulez-vous creuser ?"
 
-    texte = font.render(texte_str, True, (255, 255, 255))
+        texte = font.render(texte_str, True, (255, 255, 255))
 
 
-    # Boutons
-    bouton_oui = pygame.Rect(80, 150, 150, 50)
-    bouton_non = pygame.Rect(270, 150, 150, 50)
+        # Boutons
+        bouton_oui = pygame.Rect(80, 150, 150, 50)
+        bouton_non = pygame.Rect(270, 150, 150, 50)
 
-    clock = pygame.time.Clock()
+        clock = pygame.time.Clock()
 
-    # ---- BOUCLE DU POPUP ----
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return False
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if bouton_oui.collidepoint(event.pos):
-                    pygame.quit()
-                    return True
-
-                if bouton_non.collidepoint(event.pos):
+        # ---- BOUCLE DU POPUP ----
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     return False
 
-        # ---- AFFICHAGE ----
-        screen.fill((30, 30, 30))
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if bouton_oui.collidepoint(event.pos):
+                        pygame.quit()
+                        return True
 
-        # Texte
-        screen.blit(
-            texte,
-            (WIDTH // 2 - texte.get_width() // 2, 60)
-        )
+                    if bouton_non.collidepoint(event.pos):
+                        pygame.quit()
+                        return False
 
-        # Boutons OUI / NON
-        pygame.draw.rect(screen, (0, 150, 0), bouton_oui)
-        pygame.draw.rect(screen, (150, 0, 0), bouton_non)
+            # ---- AFFICHAGE ----
+            screen.fill((30, 30, 30))
 
-        txt_oui = font.render("OUI", True, (255, 255, 255))
-        txt_non = font.render("NON", True, (255, 255, 255))
+            # Texte
+            screen.blit(
+                texte,
+                (WIDTH // 2 - texte.get_width() // 2, 60)
+            )
 
-        screen.blit(txt_oui, (bouton_oui.x + 55, bouton_oui.y + 12))
-        screen.blit(txt_non, (bouton_non.x + 50, bouton_non.y + 12))
+            # Boutons OUI / NON
+            pygame.draw.rect(screen, (0, 150, 0), bouton_oui)
+            pygame.draw.rect(screen, (150, 0, 0), bouton_non)
 
-        pygame.display.flip()
-        clock.tick(30)
+            txt_oui = font.render("OUI", True, (255, 255, 255))
+            txt_non = font.render("NON", True, (255, 255, 255))
+
+            screen.blit(txt_oui, (bouton_oui.x + 55, bouton_oui.y + 12))
+            screen.blit(txt_non, (bouton_non.x + 50, bouton_non.y + 12))
+
+            pygame.display.flip()
+            clock.tick(30)
 
