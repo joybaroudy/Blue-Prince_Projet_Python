@@ -10,10 +10,10 @@ class TraitementBoutique:
 
     def traitement_boutique(self, inventaire: Inventaire):
         """
-        Affiche une petite fenêtre Pygame de boutique :
+        Affiche une boutique dans LA MÊME fenêtre Pygame que le jeu :
         - flèches HAUT / BAS pour changer d'article
         - ENTREE pour acheter
-        - ESC ou sélectionner "Quitter" pour sortir
+        - ESC pour sortir
         """
 
         # Récupérer la liste des articles [(index, nom, prix), ...]
@@ -22,9 +22,9 @@ class TraitementBoutique:
             print("Cette salle ne contient pas de boutique.")
             return
 
-        # --- Initialisation Pygame de la fenêtre de shop ---
-        WIDTH, HEIGHT = 600, 400
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        
+        screen = pygame.display.get_surface()
+        WIDTH, HEIGHT = screen.get_size()
         pygame.display.set_caption(f"Boutique - {self.boutique.nom_salle}")
 
         font = pygame.font.SysFont(None, 28)
@@ -33,6 +33,9 @@ class TraitementBoutique:
         selection = 0             # index de l’article sélectionné
         running = True
         message = ""              # message d’info (achat réussi / refusé)
+
+
+        bouton_fermer = pygame.Rect(WIDTH // 2 - 120, HEIGHT - 90, 240, 50) #definition du boutton fermer
 
         while running:
             for event in pygame.event.get():
@@ -56,8 +59,7 @@ class TraitementBoutique:
                         succes = self.boutique.acheter_index(inventaire, idx)
                         if succes:
                             message = f"Achat de '{nom}' réussi !"
-                            # Recharger la liste (l’article peut être retiré ou non
-                            # selon ta logique future)
+                            # Recharger la liste (au cas où tu changes la logique plus tard)
                             articles = self.boutique.lister_articles()
                             if not articles:
                                 running = False
@@ -65,6 +67,12 @@ class TraitementBoutique:
                             selection = min(selection, len(articles) - 1)
                         else:
                             message = f"Pas assez de pièces pour '{nom}'."
+
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if bouton_fermer.collidepoint(event.pos):
+                        running = False
+
 
             # ---- AFFICHAGE ----
             screen.fill((30, 30, 30))
@@ -84,7 +92,6 @@ class TraitementBoutique:
             # Liste des articles
             start_y = 110
             for i, (idx, nom, prix) in enumerate(articles):
-                # Préfixe > pour l’article sélectionné
                 prefix = "> " if i == selection else "  "
                 txt = font.render(f"{prefix}{nom}  -  {prix} pièces", True, (200, 200, 200))
                 screen.blit(txt, (60, start_y + i * 30))
@@ -97,7 +104,14 @@ class TraitementBoutique:
                     (WIDTH // 2 - txt_msg.get_width() // 2, HEIGHT - 60),
                 )
 
+            #Dessin du bouton "Fermer Boutique"
+            pygame.draw.rect(screen, (180, 50, 50), bouton_fermer)
+            texte_btn = font.render("Fermer Boutique[souris]", True, (255, 255, 255))
+            screen.blit(
+                texte_btn,
+                (bouton_fermer.x + bouton_fermer.width//2 - texte_btn.get_width()//2,
+                bouton_fermer.y + 12)
+        )
+
             pygame.display.flip()
             clock.tick(30)
-
-      
