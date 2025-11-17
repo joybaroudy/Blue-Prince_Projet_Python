@@ -2,203 +2,215 @@ import random
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture
 
 
-
-
-class Coffre:
+class Conteneur:
     """
-    Coffre / Casier / DigSpot
-    Peut contenir plusieurs objets aléatoires (0 à 4)
+    Classe parent pour Coffre, Casier et Digspot.
+    Définit:
+        - contenu
+        - cout (si applicable)
+        - ouvert / genere
+        - salle_manager
+    Ne définit PAS generer_contenu, ni ouvrir (abstrait).
     """
-    def __init__(self, salle_manager , max_items=4):
-        """
-        salle_manager : instance de SalleManager (pour accéder à get_item_weights)
-        max_items : nombre max d'objets par coffre
-        """
+
+    def __init__(self, salle_manager, max_items=4):
         self.contenu = []
         self.max_items = max_items
         self.salle_manager = salle_manager
+
         self.genere = False
-        self.cout = 1
         self.ouvert = False
 
-    def ouvrir_coffre(self, inventaire : Inventaire):
+        # Valeur par défaut pour les conteneurs
+        self.cout = 0  # Coffre / Casier changeront à 1
+
+    def generer_contenu(self, salle_ID):
+        pass
+
+    def ouvrir(self, inventaire: Inventaire):
+        pass
+
+
+
+class Coffre(Conteneur):
+    """
+    Coffre : ouverture avec 1 clé OU Hammer.
+    Peut contenir :
+        - consommables
+        - pièces, gemmes...
+        - nourriture
+        - objets permanents
+    """
+
+    def __init__(self, salle_manager, max_items=4):
+        super().__init__(salle_manager, max_items)
+        self.cout = 1  # 1 clé pour ouvrir le coffre
+
+    def ouvrir(self, inventaire: Inventaire):
         """
-        Ouvre le coffre si joueur a marteau (obtenu=True) ou assez de clés.
+        Ouvre le coffre :
+            - si Hammer obtenu : ouverture gratuite
+            - sinon consomme 1 clé si disponible
         """
         if self.ouvert:
-            return False
+            return True
 
+        # Marteau -> ouvre gratuitement
         hammer = inventaire.objets_permanents["Hammer"]
         if isinstance(hammer, ObjetPermanent) and hammer.obtenu:
             self.ouvert = True
             return True
-        elif inventaire.objets_consommables["Clés"].quantite >= self.cout:
+
+        # Sinon, payer 1 clé
+        if inventaire.objets_consommables["Clés"].quantite >= self.cout:
             inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
             self.ouvert = True
             return True
-        else:
-            return False
+
+        return False
 
     def generer_contenu(self, salle_ID):
-        """
-        Génère de 1 à max_items objets pour ce coffre
-        """
+        if self.genere:
+            return
+
+        self.genere = True
         n_items = random.randint(1, self.max_items)
+
         item_weights = self.salle_manager.get_item_weights(salle_ID)
-
         if not item_weights:
-            return  # pas de loot défini
+            return
 
-        objets_possibles = list(item_weights.keys())
+        objets = list(item_weights.keys())
         poids = list(item_weights.values())
 
         for _ in range(n_items):
-            choix = random.choices(objets_possibles, weights=poids, k=1)[0]
-            # Déterminer la quantité selon le type
-            if choix in  ["Pièces", "Gemmes", "Clés", "Dés"]:
-                if choix == "Pièces" : 
-                    quantite = random.randint(5,20)
-                quantite = random.randint(1, 10)
-                self.contenu.append((choix, quantite)) # ajoute un tuple avec la clé de l'item (pour l'inventaire) et sa quantité
-            elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]: 
-                quantite = 1
-                self.contenu.append(Nourriture(choix, quantite)) # ajoute la clé seulement car le gain par objet nourriture est fixe
-            else:                                                # Lavariable quantite est ajoutée pour eviter les errurs plus tard
-                # Objet permanent
-                quantite = 1
-                self.contenu.append(choix,quantite)
-    
-    def ouvrir(self, inventaire: Inventaire): # Sert à uniformiser pour l'ouverture des conteneurs et pr Traitement loot
-        return self.ouvrir_coffre(inventaire)
+            choix = random.choices(objets, weights=poids, k=1)[0]
+
+            # Consommables classiques
+            if choix in ["Pièces", "Gemmes", "Clés", "Dés"]:
+                if choix == "Pièces":
+                    quantite = random.randint(5, 20)
+                else:
+                    quantite = random.randint(1, 10)
+                self.contenu.append((choix, quantite))
+
+            # Nourriture
+            elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]:
+                self.contenu.append(Nourriture(choix, 1))
+
+            # Objets permanents
+            else:
+                # On stock l’objet permanent sous forme de string
+                self.contenu.append((choix, 1))
 
 
 
-class Casier:
+class Casier(Conteneur):
     """
-    Casier
-    Peut contenir plusieurs objets aléatoires (0 à 4)
+    Casier :
+        - coûte 1 clé pour ouvrir
+        - NE PEUT PAS contenir d'objets permanents
     """
+
     def __init__(self, salle_manager, max_items=4):
-        """
-        salle_manager : instance de SalleManager (pour accéder à get_item_weights)
-        max_items : nombre max d'objets par coffre
-        """
-        self.contenu = []
-        self.max_items = max_items
-        self.salle_manager = salle_manager
-        self.genere = False
+        super().__init__(salle_manager, max_items)
         self.cout = 1
-        self.ouvert = False
 
-    def ouvrir_casier(self, inventaire : Inventaire):
-        """
-        Ouvre le coffre si joueur a marteau (obtenu=True) ou assez de clés.
-        """
+    def ouvrir(self, inventaire: Inventaire):
         if self.ouvert:
-            return False
+            return True
 
         if inventaire.objets_consommables["Clés"].quantite >= self.cout:
             inventaire.objets_consommables["Clés"].changer_solde(-self.cout)
             self.ouvert = True
             return True
-        else:
-            return False
+
+        return False
 
     def generer_contenu(self, salle_ID):
-        """
-        Génère de 0 à max_items objets pour ce coffre
-        """
-        n_items = random.randint(0, self.max_items)
-        item_weights = self.salle_manager.get_item_weights(salle_ID)
+        if self.genere:
+            return
 
-        objets_possibles = list(item_weights.keys())
+        self.genere = True
+        n_items = random.randint(0, self.max_items)
+
+        item_weights = self.salle_manager.get_item_weights(salle_ID)
+        if not item_weights:
+            return
+
+        objets = list(item_weights.keys())
         poids = list(item_weights.values())
 
         for _ in range(n_items):
+            choix = random.choices(objets, weights=poids, k=1)[0]
 
-            self.genere = True
-            choix = random.choices(objets_possibles, weights=poids, k=1)[0]
-            # Déterminer la quantité selon le type
-            if choix in  ["Pièces", "Gemmes", "Clés", "Dés"]:
-                if choix == "Pièces" : 
-                    quantite = random.randint(5,20)
-                quantite = random.randint(1, 10)
-                self.contenu.append((choix, quantite)) # ajoute un tuple avec la clé de l'item (pour l'inventaire) et sa quantité
-            elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]: 
-                quantite = 1
-                self.contenu.append(Nourriture(choix, quantite)) # ajoute la clé seulement car le gain par objet nourriture est fixe
-            else:                                                # Lavariable quantite est ajoutée pour eviter les errurs plus tard
-                # Objet permanent
-                continue # Si l'objet tiré est un objet permanent on ne l'ajoute pas car le casier n'a que des consommables
-    
-    def ouvrir(self, inventaire: Inventaire):
-        return self.ouvrir_casier(inventaire)
-
-class Digspot:
-    """
-    DigSpot
-    Peut contenir plusieurs objets aléatoires (0 à 4)
-    """
-    def __init__(self, salle_manager, max_items=3):
-        """
-        salle_manager : instance de SalleManager (pour accéder à get_item_weights)
-        max_items : nombre max d'objets par coffre
-        """
-        self.contenu = []
-        self.max_items = max_items
-        self.salle_manager = salle_manager
-        self.genere = False
-        self.ouvert = False
-
-    def generer_contenu(self, salle_ID, inventaire : Inventaire):
-        """
-        Génère de 0 à max_items objets pour ce digspot
-        """
-
-        shovel = inventaire.objets_permanents["Shovel"]
-        if shovel.obtenu:
-
-            self.genere = True 
-            
-            n_items = random.randint(0, self.max_items)
-            item_weights = self.salle_manager.get_item_weights(salle_ID)
-
-            objets_possibles = list(item_weights.keys())
-            poids = list(item_weights.values())
-
-            for _ in range(n_items):
-                choix = random.choices(objets_possibles, weights=poids, k=1)[0]
-                # Déterminer la quantité selon le type
-                if choix in  ["Pièces", "Gemmes", "Clés", "Dés"]:
-                    if choix == "Pièces" : 
-                        quantite = random.randint(5,20)
+            # Consommables
+            if choix in ["Pièces", "Gemmes", "Clés", "Dés"]:
+                if choix == "Pièces":
+                    quantite = random.randint(5, 20)
+                else:
                     quantite = random.randint(1, 10)
-                    self.contenu.append((choix, quantite)) # ajoute un tuple avec la clé de l'item (pour l'inventaire) et sa quantité
-                elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]: 
-                    quantite = 1
-                    self.contenu.append(Nourriture(choix, quantite)) # ajoute la clé seulement car le gain par objet nourriture est fixe
-                else:                                                # Lavariable quantite est ajoutée pour eviter les errurs plus tard
-                    # Objet permanent
-                    continue # Si l'objet tiré est un objet permanent on ne l'ajoute pas car le casier n'a que des consommables
-        
+                self.contenu.append((choix, quantite))
+
+            # Nourriture
+            elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]:
+                self.contenu.append(Nourriture(choix, 1))
+
+            # Objets permanents -> casier n'en donne pas
+            else:
+                continue
+
+
+class Digspot(Conteneur):
+    """
+    Digspot :
+        - nécessite la pelle (Shovel) pour être ouvert
+        - ne contient PAS d'objets permanents
+    """
+
+    def __init__(self, salle_manager, max_items=3):
+        super().__init__(salle_manager, max_items)
+
     def ouvrir(self, inventaire: Inventaire):
         shovel = inventaire.objets_permanents["Shovel"]
         if shovel.obtenu:
             self.ouvert = True
             return True
         return False
-    
 
+    def generer_contenu(self, salle_ID, inventaire: Inventaire):
+        if self.genere:
+            return
 
+        shovel = inventaire.objets_permanents["Shovel"]
+        if not shovel.obtenu:
+            return
 
+        self.genere = True
+        n_items = random.randint(0, self.max_items)
 
+        item_weights = self.salle_manager.get_item_weights(salle_ID)
+        if not item_weights:
+            return
 
+        objets = list(item_weights.keys())
+        poids = list(item_weights.values())
 
+        for _ in range(n_items):
+            choix = random.choices(objets, weights=poids, k=1)[0]
 
+            # Consommables
+            if choix in ["Pièces", "Gemmes", "Clés", "Dés"]:
+                if choix == "Pièces":
+                    quantite = random.randint(5, 20)
+                else:
+                    quantite = random.randint(1, 10)
+                self.contenu.append((choix, quantite))
 
+            # Nourriture
+            elif choix in ["Pomme", "Banane", "Gâteau", "Sandwich"]:
+                self.contenu.append(Nourriture(choix, 1))
 
-
-
-
-
-
+            # Objets permanents -> Digspot n'en donne pas
+            else:
+                continue

@@ -2,7 +2,7 @@ import random
 
 from Salles import Salle, Case
 from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture 
-from Conteneurs import Coffre, Casier, Digspot
+from Conteneurs import Conteneur, Coffre, Casier, Digspot
 from Boutique import Boutique, ArticleShop
 from EffetsSalles import EffetsSalles
 
@@ -164,9 +164,9 @@ class SalleManager:
 
     def get_item_weights(self, salle_ID):
 
-        rarete = self.catalogue.salles_rarete_dict.get(salle_ID)
-        couleur = self.catalogue.salle_couleur_dict.get(salle_ID)
-        condition = self.catalogue.salles_conditions_dict.get(salle_ID)
+        rarete = self.catalogue.salles_rarete_dict[salle_ID]
+        couleur = self.catalogue.salle_couleur_dict[salle_ID]
+        condition = self.catalogue.salles_conditions_dict[salle_ID]
 
         # TIERS (Common / Rare / Epic / Legendary)
         weights = {
@@ -237,34 +237,36 @@ class SalleManager:
         digspots = []
 
         # Couleur must be Green
-        couleur = self.catalogue.salle_couleur_dict.get(salle_ID, "Blue")
+        couleur = self.catalogue.salle_couleur_dict[salle_ID]
         if couleur != "Green":
+
             return digspots
 
         # Green rooms : 0  3 dig spots
         nb = random.randint(0, 4)
         for _ in range(nb) : 
-            digspots.append[Digspot()]
+            digspots.append(Digspot(self))
+
         return digspots
 
 
     def generer_conteneurs(self, salle_ID): # Coffres ou casiers
 
-        rarete = self.catalogue.salles_rarete_dict(salle_ID)
-        name = self.catalogue.salles_names_dict(salle_ID)
+        rarete = self.catalogue.salles_rarete_dict[salle_ID]
+        name = self.catalogue.salles_names_dict[salle_ID]
         conteneurs = []
 
         # Locker Room : 1 à 3 casiers garantis
         if name == "Locker Room":
             nb = random.randint(1, 3)
             for _ in range(nb):
-                conteneurs.append(Casier())
+                conteneurs.append(Casier(self))
         
 
         # Coffre : rare + rareté
         proba_coffre = 0.1 + 0.05 * rarete
         if random.random() < proba_coffre:
-            conteneurs.append(Coffre())
+            conteneurs.append(Coffre(self))
 
         return conteneurs
     
@@ -292,7 +294,7 @@ class SalleManager:
 
       # 2) Digspots
         if color == "Green":
-            contenu.extend(self.generer_digspots(salle_ID, inventaire))
+            contenu.extend(self.generer_digspots(salle_ID))
 
   
         # 3) poids des loots + bonus (Patte de lapin + Detecteur de métaux)

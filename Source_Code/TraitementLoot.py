@@ -1,5 +1,5 @@
 from Inventory import Inventaire, Objet, ObjetConsommable, ObjetPermanent, Nourriture
-from Conteneurs import Coffre, Casier, Digspot
+from Conteneurs import Conteneur, Coffre, Casier, Digspot
 from RoomCell import RoomCell
 from Manoir import Manoir
 import pygame
@@ -10,12 +10,16 @@ from TraitementBoutique import TraitementBoutique
 
 class TraitementLoot : 
 
-    def get_loot_from_container(cell : RoomCell, container, inventaire : Inventaire):
+    def get_loot_from_container(cell : RoomCell, container : Conteneur, inventaire : Inventaire):
 
         if container.ouvert == True :
 
             if container.genere == False :
-                container.generer_contenu(cell.room_id)
+                if isinstance(container, Digspot):
+                    container.generer_contenu(cell.room_id, inventaire)
+                else:
+                    container.generer_contenu(cell.room_id)
+
                 container.genere = True
             
             loot = container.contenu
