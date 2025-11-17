@@ -103,7 +103,7 @@ class TraitementLoot :
                 continue
 
             elif isinstance(item, Boutique) : 
-                pass
+                item.traitement_boutique(inventaire)
 
         cell.loot_on_ground = loot_restant
 
