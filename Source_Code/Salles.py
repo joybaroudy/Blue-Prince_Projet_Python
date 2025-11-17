@@ -11,7 +11,7 @@ class Case:
         self.coordinates = coordinates
         r, c = coordinates
         # coins : (1,1), (1,5), (9,1), (9,5) selon ton ancien code (5x9 grid)
-        if coordinates in ([1,1], [1,5], [9,1], [9,5]):
+        if coordinates in ([1,1], [5,1], [1,9], [5,9]):
             self.position = "Corner"
         elif r == 1 or r == 9 or c == 1 or c == 5:
             self.position = "Edge"
@@ -676,8 +676,10 @@ class Salle:
             return case.position == "Edge"
         elif cond == "Corner" :
             return case.position == "Corner"
+        elif cond == "Not Edge" :
+            return case.position != "Edge"
         else : 
-            return case.position != "Edge" and case.position != "Corner"
+            return False
 
 
 
