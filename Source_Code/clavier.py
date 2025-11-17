@@ -22,7 +22,7 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 
-def gerer_clavier(joueur, tirage_salle, salle_catalogue, salle_selectionnee,
+def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                   tirage_effectuee, direction_choisi, plateau,inventaire):
     continuer = True
 
@@ -203,12 +203,3 @@ def gerer_clavier(joueur, tirage_salle, salle_catalogue, salle_selectionnee,
     
     return continuer,salle_selectionnee,tirage_effectuee, direction_choisi
 
-
-    if tirage:
-        salle_selectionnee = tirage
-        print(f"Tirage effectué vers {direction} :", tirage)
-        tirage_effectuee = True
-        direction_choisi = direction
-        gerer_clavier.index_selection = 0  # <-- reset de la sélection
-    else:
-        print("Aucun tirage possible dans cette direction.")

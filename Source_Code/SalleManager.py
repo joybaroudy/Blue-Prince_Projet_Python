@@ -137,7 +137,7 @@ class SalleManager:
     def generer_salle(self, coordonnees, salle_ID):
         """
         Créer un dictionnaire représentant l'instance de salle placée (portail/objets...).
-        Pour l’instant, on ignore la rotation pour rester cohérent avec le catalogue.
+        Pour l'instant, on ignore la rotation pour rester cohérent avec le catalogue.
         """
 
         instance = {

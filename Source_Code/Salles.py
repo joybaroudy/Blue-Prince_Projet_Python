@@ -667,11 +667,30 @@ class Salle:
 
     def peut_etre_placee(self, ID, case: Case):
         cond = self.salles_conditions_dict.get(ID)
-        if cond is None:
+
+        if cond is None : 
+            return False
+        elif cond == "Normal" :
             return True
-        if cond == "Not Edge":
+        elif cond == "Edge" : 
+            return case.position == "Edge"
+        elif cond == "Corner" :
+            return case.position == "Corner"
+        else : 
             return case.position != "Edge" and case.position != "Corner"
-        return cond == case.position
+
+
+
+
+
+
+
+
+        # if cond is None:
+        #     return True
+        # if cond == "Not Edge":
+        #     return case.position != "Edge" and case.position != "Corner"
+        # return cond == case.position
 
 
 
