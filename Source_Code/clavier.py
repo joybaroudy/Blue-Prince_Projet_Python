@@ -4,6 +4,8 @@ from Inventory import Inventaire
 from Boutique import Boutique
 from TraitementBoutique import TraitementBoutique
 from EffetsSalles import EffetsSalles
+from Salles import Porte
+
 
 def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
     """
@@ -42,9 +44,9 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau,inventaire):
+                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict):
     continuer = True
-
+    
     # Initialiser l'index de sélection une fois
     if not hasattr(gerer_clavier, "index_selection"):
         gerer_clavier.index_selection = 0
@@ -85,17 +87,18 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     print(f"Nom de salle inconnu côté catalogue : {nom_salle_actuelle}")
                     continue
 
-                portes = salle_catalogue.salle_porte_emplacement_dict.get(salle_id_actuelle)
-                if portes is None:
+                portes_salle = salle_catalogue.salle_porte_emplacement_dict.get(salle_id_actuelle)
+                if portes_salle is None:
                     print(f"Aucune info de portes pour {salle_id_actuelle}")
                     continue
 
                 porte_index_depart = DIRECTION_TO_PORTE_INDEX[direction]
 
                 # 3) vérifier s'il y a une porte dans cette direction
-                if not portes[porte_index_depart]:
+                if not portes_salle[porte_index_depart]:
                     print(f"Pas de porte vers {direction} pour la salle {nom_salle_actuelle}")
                     continue  # on ignore la touche
+
 
                 # 4) calculer la nouvelle case en pixels
                 if direction == "gauche":
@@ -106,6 +109,36 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu - 60)
                 elif direction == "bas":
                     new_pos = (x_actu, y_actu + 60)
+
+
+                #Ajout de la gestion des portes
+                
+                # On identifie une porte par : position actuelle + direction
+                cle_porte = (x_actu, y_actu, direction)
+
+                # Si c'est la première fois qu'on utilise cette porte, on la crée
+                porte_obj = portes_dict.get(cle_porte)
+                if porte_obj is None:
+                    row, col = pixel_to_case(x_actu, y_actu)
+                    porte_obj = Porte([row, col])
+                    portes_dict[cle_porte] = porte_obj
+
+                # Demande au joueur s'il veut vraiment ouvrir (clé / lockpick / gratuit)
+                ouverte = porte_obj.demander_ouverture_porte(inventaire)
+                if not ouverte:
+                    print("Vous laissez la porte fermée.")
+                    continue  # on annule le déplacement/tirage
+
+                # Si la porte est ouverte, on crée aussi l'entrée inverse pour ne pas repayer
+                OPPOSITE_DIR = {
+                    "gauche": "droite",
+                    "droite": "gauche",
+                    "haut": "bas",
+                    "bas": "haut",
+                }
+                dir_retour = OPPOSITE_DIR[direction]
+                x_new, y_new = new_pos
+                portes_dict[(x_new, y_new, dir_retour)] = porte_obj
                 
                 #Limite de la zone du jeu
                 limite_gauche=0
@@ -121,6 +154,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
 
                 # 5) si une salle existe déjà -> déplacement simple
                 if new_pos in plateau:
+
                     # Nom de la salle voisine
                     nom_salle_voisine = plateau[new_pos]
                     salle_id_voisine = salle_catalogue.name_to_id.get(nom_salle_voisine)
