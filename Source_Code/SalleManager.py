@@ -317,23 +317,28 @@ class SalleManager:
         # ----------------------------------------
 
 
-        # éviter le bug "tous weights = 0"
-        if all(v == 0 for v in weights.values()):
-            weights["Pièces"] = 1
-
-
-        if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu :
+        if inventaire.objets_permanents["Lucky Rabbit Foot"].obtenu:
 
             lucky_bonus = 0.2
             weights = self.apply_lucky_bonus(weights, lucky_bonus)
 
-        if inventaire.objets_permanents["Metal Detector"].obtenu :
+        if inventaire.objets_permanents["Metal Detector"].obtenu:
 
             metal_detector_bonus = 0.3
             weights = self.apply_metal_detector_bonus(weights, metal_detector_bonus)
 
+        # Empêcher le respawn des objets permanents déjà obtenus
+        for nom, obj in inventaire.objets_permanents.items():
+            if obj.obtenu and nom in weights:
+                weights[nom] = 0
+
+        # éviter le bug "tous weights = 0"
+        if all(v == 0 for v in weights.values()):
+            weights["Pièces"] = 1
+
         total = sum(weights.values())
         nb_items = random.randint(1, 3)
+
 
       # 4) tirage du floor loot
       
