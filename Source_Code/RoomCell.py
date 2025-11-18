@@ -1,4 +1,4 @@
-from Salles import Salle
+from Salles import Salle, Porte
 
 # Etat des portes (existantes ou pas)
 
@@ -15,6 +15,7 @@ class DoorState:
         self.opened = False
         self.tirage_done = False
         self.tirage_results = None  # Ex: ["ID14", "ID4", "ID22"]
+        self.generated = False
 
 
 
@@ -27,20 +28,38 @@ class RoomCell:
         - containers : liste d'objets Coffre / Casier / Digspot non encore ouverts
         - doors : liste de 4 DoorState (haut, droite, bas, gauche)
     """
-    def __init__(self, coordonnees, rotation = 0):
-        self.coordonnees = coordonnees
-        self.explored = False
-        self.room_id = None  # défini quand on entre pour la première fois
-        self.loot_on_ground = []  # objets posés dans la salle
-        self.containers = []      # coffres, casiers
-        self.digspots = []        # digspots à garder
-        self.rotation = rotation # degre de rotation
 
-        self.doors =  []
-        
-        if self.coordonnees ==  (1,3) : # Initialisation pour entrance Hall
+    def __init__(self, coordonnees, rotation=0):
+        self.coordonnees = coordonnees
+        self.rotation = rotation
+
+        self.explored = False
+        self.room_id = None
+        self.loot_on_ground = []
+        self.containers = []
+        self.digspots = []
+
+        # --- 1) INITIALISATION DES VRAIES PORTES ---
+        # 4 portes : direction = 0:Sud, 1:Ouest, 2:Nord, 3:Est
+        # On leur donne la coordonnée de la salle
+        self.doors = [Porte(coordonnees) for _ in range(4)]
+
+        # --- 2) INITIALISATION DES ETATS DE TIRAGE ---
+        self.doorstates = [DoorState() for _ in range(4)]
+
+        # --- 3) CAS SPÉCIAL : ENTRANCE HALL ---
+        if self.coordonnees == (1, 3):
             self.explored = True
             self.room_id = "ID2"
+            # les portes sont "ouvertes" dans le gameplay
+            for porte in self.doors:
+                porte.ouvert = True
+                porte.level = 0
+                porte.cout = 0
+            # et on considère que leur tirage n'existe pas
+            for ds in self.doorstates:
+                ds.exists = False
+
 
 
         

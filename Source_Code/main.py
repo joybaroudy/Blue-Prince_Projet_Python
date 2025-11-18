@@ -59,7 +59,7 @@ etat_partie=None #Gagné ou Perdu
 while continuer:
     #Gestion du clavier
     continuer,salle_selectionnee,tirage_effectuee, direction_choisi=gerer_clavier(
-        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes)
+        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes, manoir)
 
     #Affichage de l'écran
     affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi)

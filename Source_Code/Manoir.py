@@ -29,11 +29,10 @@ class Manoir:
 
     def set_door_exists(self, coord, direction, exists=True): # Verifie si une porte existe à la position donnée
         """direction = 0: Nord, 1: Est, 2: Sud, 3: Ouest"""
-        self.grid[coord].doors[direction].exists = exists
+        self.grid[coord].doorstates[direction].exists = exists
 
     def get_door(self, coord : list, direction): # 
         return self.grid[coord].doors[direction]
-
 
     def enter_room(self, coord, new_room_ID):
         """

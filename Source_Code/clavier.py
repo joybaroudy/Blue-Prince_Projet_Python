@@ -5,7 +5,7 @@ from Boutique import Boutique
 from TraitementBoutique import TraitementBoutique
 from EffetsSalles import EffetsSalles
 from Salles import Porte
-
+from Manoir import Manoir
 
 def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
     """
@@ -43,8 +43,9 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 
+
 def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict):
+                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict,manoir:Manoir):
     continuer = True
     
     # Initialiser l'index de sélection une fois
@@ -152,12 +153,17 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
 
                     # Ici, les deux salles ont bien une porte face à face → déplacement autorisé
                     joueur.x, joueur.y = new_pos
+
                     print(f"Déplacement dans une salle existante : {nom_salle_voisine}")
 
                     # Appliquer les effets d'entrée de la salle
 
                     effet = EffetsSalles(salle_id_voisine, salle_catalogue)
                     effet.apply_entry_effects(inventaire)
+
+                    r, c = pixel_to_case(joueur.x, joueur.y)
+
+                    effet.apply_over_time_effects(inventaire, (r, c))
 
                     print(f"[EFFET] Effets appliqués : {effet.name}")
 
@@ -186,31 +192,66 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     row, col = pixel_to_case(x_actu, y_actu)
                     case_test = Case([row, col])
 
-                                        # On crée une porte en fonction de la case actuelle du joueur
+                    coord_manoir = (col, row)  # inversion obligatoire
+
+
+                    # 1) enregistre l’existence des portes de la salle dans le Manoir
+                    for d in range(4):
+                        manoir.set_door_exists(coord_manoir, d, portes_salle[d])
+
+                    
+                    # 2) Création / récupération de la porte dans le Manoir
                     row, col = pixel_to_case(joueur.x, joueur.y)
-                    porte_temp = Porte([row, col])
+                    cell_coord = (col, row)  # inversion obligatoire
+
+                    # conversion direction string end index
+                    porte_idx = DIRECTION_TO_PORTE_INDEX[direction]
+
+                    cell = manoir.grid[cell_coord]
+                    doorstate = cell.doorstates[porte_idx]
+                    porte_temp = cell.doors[porte_idx]
+
+                    # Génération de la porte si pas déjà générée
+                    if not doorstate.generated:
+                        print("Génération d'une nouvelle porte.")
+                        doorstate.generated = True
+                        porte_temp = Porte([row, col])
+                        cell.doors[porte_idx] = porte_temp
 
                     # Si la salle actuelle est l'Entrance Hall -> porte forcée niveau 0
                     if plateau.get((joueur.x, joueur.y)) == "Entrance Hall":
                         porte_temp.level = 0
                         porte_temp.cout = 0
                         porte_temp.double_tour = False
+                        porte_temp.ouvert = True
+                        doorstate.opened = True
 
-                    # On demande au joueur s'il veut ouvrir cette porte
-                    ouverte = porte_temp.demander_ouverture_porte(inventaire)
+                    # --- vérifier si la porte est déjà ouverte ---
+                    if porte_temp.ouvert:
+                        print("La porte est déjà ouverte, pas de paiement nécessaire.")
+                        ouverte = True
+                    else:
+                        # demander au joueur s'il veut ouvrir et payer
+                        ouverte = porte_temp.demander_ouverture_porte(inventaire)
+                        if ouverte:
+                            porte_temp.ouvert = True
+                            doorstate.opened = True
+
                     if not ouverte:
                         print("Vous laissez la porte fermée, la nouvelle salle n'est pas révélée.")
-                        # On reste dans l'état de tirage : il peut choisir une autre salle
                         continue
-                    # --- fin gestion porte ---
 
-
-
-                    tirage = tirage_salle.tirage_salles(
-                        coordonnees=[row, col],
-                        porte_index=porte_index_depart,
-                        case_obj=case_test
-                    )
+                    # --- Tirage des salles uniquement si pas déjà fait ---
+                    if not doorstate.tirage_done:
+                        tirage = tirage_salle.tirage_salles(
+                            coordonnees=[row, col],
+                            porte_index=porte_idx,
+                            case_obj=Case([row, col])
+                        )
+                        doorstate.tirage_results = tirage
+                        doorstate.tirage_done = True
+                    else:
+                        tirage = doorstate.tirage_results
 
                     if tirage:
                         salle_selectionnee = tirage
@@ -219,6 +260,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                         direction_choisi = direction
                     else:
                         print("Aucun tirage possible dans cette direction.")
+
 
         elif evenement.type == pygame.KEYDOWN and tirage_effectuee:
 

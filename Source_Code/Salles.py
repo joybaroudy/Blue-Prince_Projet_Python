@@ -702,13 +702,13 @@ class Porte:
             self.level = 0
             return
 
-        weight_cout_0 = 1 * (1 - (c / 9))
-        weight_cout_1 = 1 * (c / 9)
+        weight_cout_0 = 1 * ((r / 9))
+        weight_cout_1 = 1 * (1-(r / 9))
 
         self.cout = random.choices([0, 1], weights=[weight_cout_0, weight_cout_1], k=1)[0]
         self.ouvert = False
 
-        proba_DT = 0.5 * (c / 9)
+        proba_DT = 0.5 * (1-(r / 9))
 
         if self.cout == 1:
             self.double_tour = random.choices([False, True], weights=[1 - proba_DT, proba_DT], k=1)[0]
