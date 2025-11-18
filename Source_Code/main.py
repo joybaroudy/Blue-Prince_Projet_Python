@@ -62,9 +62,9 @@ while continuer:
     pos_joueur=(joueur.x,joueur.y)
     #Gestion du clavier
     continuer,salle_selectionnee,tirage_effectuee, direction_choisi,contenu_salle=gerer_clavier(
-        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes, manoir, dernier_contenu_salle)
+        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, screen, portes, manoir, dernier_contenu_salle)
 
-    #Affichage de l'écran
+    #Affichage de l'écrangnf
     affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi, contenu_salle=dernier_contenu_salle)
 
     #NOuvelle position du joueur après la gestion du clavier

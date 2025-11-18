@@ -16,7 +16,7 @@ class TraitementLoot :
 
             if container.genere == False :
                 if isinstance(container, Digspot):
-                    container.generer_contenu(cell.room_id, inventaire)
+                    container.generer_contenu(cell.room_id)
                 else:
                     container.generer_contenu(cell.room_id)
 
@@ -45,10 +45,13 @@ class TraitementLoot :
 
     # Prendre le loot au sol dans une salle
 
-    def take_loot_from_room(cell : RoomCell, inventaire : Inventaire):
+    def take_loot_from_room(cell : RoomCell, inventaire : Inventaire, screen, room_ID = "ID2"):
         
         loot = cell.all_loot
         loot_restant = loot.copy()
+
+        if cell.room_id is not None : 
+            room_ID = cell.room_id
 
         for item in loot:
             if isinstance(item, Nourriture):
@@ -70,7 +73,7 @@ class TraitementLoot :
                 if not item.ouvert:
 
                     # UI : demander à l'utilisateur
-                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item, inventaire)
+                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item, inventaire, screen)
 
 
                     if not doit_ouvrir:
@@ -88,9 +91,9 @@ class TraitementLoot :
                 # --- 2) Si ouvert, générer le contenu si nécessaire ---
                 if not item.genere:
                     if isinstance(item, Digspot):
-                        item.generer_contenu(cell.room_id, inventaire)
+                        item.generer_contenu(room_ID, inventaire)
                     else:
-                        item.generer_contenu(cell.room_id)
+                        item.generer_contenu(room_ID)
                     item.genere = True
 
                 # --- 3) Distribuer le contenu ---
@@ -114,22 +117,21 @@ class TraitementLoot :
                 # Une fois la visite terminée, on peut retirer la boutique du sol
                 loot_restant.remove(item)
 
-        cell.all_loot = loot_restant
+        return loot_restant
 
 
     @staticmethod
-    def demander_ouverture_conteneur(container, inventaire):
+    def demander_ouverture_conteneur(container, inventaire, screen):
         """
         Popup Pygame : demande au joueur s'il veut ouvrir le conteneur.
         Le texte dépend automatiquement du type de conteneur.
         """
 
-        pygame.init()
+        popup_width, popup_height = 500, 240
+        popup_rect = pygame.Rect(0, 0, popup_width, popup_height)
+        popup_rect.center = (screen.get_width() // 2, screen.get_height() // 2)
+        font = pygame.font.SysFont(None, 28)
 
-        # Fenêtre
-        WIDTH, HEIGHT = 500, 240
-        screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption("Confirmation d'ouverture")
 
         font = pygame.font.SysFont(None, 28)
 
@@ -153,46 +155,33 @@ class TraitementLoot :
 
 
         # Boutons
-        bouton_oui = pygame.Rect(80, 150, 150, 50)
-        bouton_non = pygame.Rect(270, 150, 150, 50)
+        bouton_oui = pygame.Rect(popup_rect.x + 80, popup_rect.y + 150, 150, 50)
+        bouton_non = pygame.Rect(popup_rect.x + 270, popup_rect.y + 150, 150, 50)
+
 
         clock = pygame.time.Clock()
 
-        # ---- BOUCLE DU POPUP ----
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return False
-
+                    return False  # on ne quitte pas pygame
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if bouton_oui.collidepoint(event.pos):
-                        pygame.quit()
                         return True
-
                     if bouton_non.collidepoint(event.pos):
-                        pygame.quit()
                         return False
 
-            # ---- AFFICHAGE ----
-            screen.fill((30, 30, 30))
+            # Dessiner le popup
+            overlay = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 150))  # semi-transparent
+            screen.blit(overlay, (0, 0))
 
-            # Texte
-            screen.blit(
-                texte,
-                (WIDTH // 2 - texte.get_width() // 2, 60)
-            )
-
-            # Boutons OUI / NON
+            pygame.draw.rect(screen, (30, 30, 30), popup_rect)
+            screen.blit(font.render(texte_str, True, (255, 255, 255)), (popup_rect.x + 20, popup_rect.y + 20))
             pygame.draw.rect(screen, (0, 150, 0), bouton_oui)
             pygame.draw.rect(screen, (150, 0, 0), bouton_non)
-
-            txt_oui = font.render("OUI", True, (255, 255, 255))
-            txt_non = font.render("NON", True, (255, 255, 255))
-
-            screen.blit(txt_oui, (bouton_oui.x + 55, bouton_oui.y + 12))
-            screen.blit(txt_non, (bouton_non.x + 50, bouton_non.y + 12))
+            screen.blit(font.render("OUI", True, (255, 255, 255)), (bouton_oui.x + 55, bouton_oui.y + 12))
+            screen.blit(font.render("NON", True, (255, 255, 255)), (bouton_non.x + 50, bouton_non.y + 12))
 
             pygame.display.flip()
             clock.tick(30)
-

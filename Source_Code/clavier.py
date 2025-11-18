@@ -8,6 +8,7 @@ from Salles import Porte
 from Manoir import Manoir
 from Conteneurs import Casier, Coffre, Digspot
 from Boutique import Boutique
+from TraitementLoot import TraitementLoot
 
 def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
     """
@@ -47,7 +48,7 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict,manoir:Manoir,contenu_actuel=None):
+                  tirage_effectuee, direction_choisi, plateau,inventaire, screen, portes_dict,manoir:Manoir,contenu_actuel=None):
     continuer = True
     contenu_complet=None
 
@@ -76,18 +77,20 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 direction = "haut"
             elif evenement.key == pygame.K_DOWN or evenement.key == pygame.K_s:
                 direction = "bas"
-
+            
             elif evenement.key == pygame.K_t:
-            # Récupérer l'objet permanent
-                from TraitementLoot import TraitementLoot
 
-                # On récupère la case du joueur
+                # Trouver la case du joueur
                 row, col = pixel_to_case(joueur.x, joueur.y)
+                cell = manoir.grid[(col, row)]  # inversion obligatoire
+                cell.room_id = salle_selectionnee  # ou l'ID de la salle actuelle
 
-                cell = manoir.grid[(col, row)]   # inversion obligatoire
-                TraitementLoot.take_loot_from_room(cell, inventaire)
 
-                print("Objet ramassé")
+                # Ramasser le loot
+                manoir.grid[(col,row)].all_loot = TraitementLoot.take_loot_from_room(cell, inventaire, screen)
+                
+                print("Objet(s) ramassé (T)")
+
 
             if direction:
                 # position actuelle du joueur
@@ -132,6 +135,13 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu + 60)
 
 
+                x, y = new_pos
+                row, col = pixel_to_case(x, y)
+
+                manoir.grid[(col, row)].room_id = salle_id_actuelle 
+
+                print(f"On est dans la salle{salle_catalogue.salles_names_dict[salle_id_actuelle]}")
+                
             
                 
                 #Limite de la zone du jeu
