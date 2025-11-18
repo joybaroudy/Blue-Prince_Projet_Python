@@ -47,7 +47,7 @@ class TraitementLoot :
 
     def take_loot_from_room(cell : RoomCell, inventaire : Inventaire):
         
-        loot = cell.loot_on_ground
+        loot = cell.all_loot
         loot_restant = loot.copy()
 
         for item in loot:
@@ -114,7 +114,7 @@ class TraitementLoot :
                 # Une fois la visite terminée, on peut retirer la boutique du sol
                 loot_restant.remove(item)
 
-        cell.loot_on_ground = loot_restant
+        cell.all_loot = loot_restant
 
 
     @staticmethod

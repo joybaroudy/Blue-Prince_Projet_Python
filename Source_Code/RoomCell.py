@@ -38,6 +38,7 @@ class RoomCell:
         self.loot_on_ground = []
         self.containers = []
         self.digspots = []
+        self.all_loot = self.loot_on_ground + self.containers + self.digspots
 
         # --- 1) INITIALISATION DES VRAIES PORTES ---
         # 4 portes : direction = 0:Sud, 1:Ouest, 2:Nord, 3:Est
@@ -59,6 +60,24 @@ class RoomCell:
             # et on considère que leur tirage n'existe pas
             for ds in self.doorstates:
                 ds.exists = False
+
+
+    def add_loot(self, item):
+        """Ajoute un objet au loot de la salle"""
+        self.loot_on_ground.append(item)
+
+    def remove_loot(self, item):
+        """Enlève un objet du loot si ramassé"""
+        if item in self.loot_on_ground:
+            self.loot_on_ground.remove(item)
+
+    def add_container(self, container):
+        self.containers.append(container)
+
+    def remove_container(self, container):
+        if container in self.containers:
+            self.containers.remove(container)
+
 
 
 

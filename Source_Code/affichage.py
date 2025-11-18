@@ -202,7 +202,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
     #Placement de la salle initial
     entrance_hall=pygame.transform.scale(images["entrance_room"],(60,60))
     screen.blit(entrance_hall, (120, 480))
-
+    
     #Lorsqu'un tirage est fait
     if salle_selectionnee:
         Salle_tiree=font.render("Tirage de salles:",True,(0,0,0))

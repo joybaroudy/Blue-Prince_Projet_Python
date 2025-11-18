@@ -177,6 +177,10 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     tirage_effectuee = False
                     direction_choisi = None
 
+                    c, r = pixel_to_case(joueur.x, joueur.y)
+
+                    contenu_complet = manoir.grid[(r, c)].all_loot
+
                     # Si salle jaune -> lancer la boutique
                     lancer_boutique_si_jaune(nom_salle_voisine, salle_catalogue, inventaire)
 
@@ -299,6 +303,8 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 #On combine les 2
                 contenu_complet=contenu_salle+conteneurs_salle
 
+
+
                 print("Contenu généré :", contenu_salle)
                 print("Conteneurs générés :", conteneurs_salle)
                 print("Contenu complet :", contenu_complet)
@@ -326,6 +332,10 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 elif direction_choisi=="bas":
                     joueur.deplacement(0,1)
 
+                cell_coord2 = pixel_to_case(joueur.x, joueur.y)
+                col, row = cell_coord2
+                manoir.grid[(row,col)].all_loot = contenu_complet
+                
                 #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
                 inventaire.objets_consommables["Pas"].quantite-=1
                 print("Pas restant:{inventaire.objets_consommables['Pas'].quantite}")
