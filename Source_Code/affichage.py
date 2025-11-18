@@ -1,5 +1,7 @@
 import pygame
 import clavier
+from Conteneurs import Casier, Coffre, Digspot
+from Boutique import Boutique
 
 def charger_Images_salles():
     return{ #Salle bleue
@@ -141,7 +143,7 @@ def afficher_direction(screen, direction_choisi,font,joueur):
     #Dessine le triangle
     pygame.draw.polygon(screen,couleur,fleche)
 
-def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau,direction_choisi):
+def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau,direction_choisi,contenu_salle=None):
 
     ecran_jeu=300
     width,height=screen.get_size()
@@ -257,5 +259,39 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
     joueur.position_initial(screen)
     if direction_choisi:
         afficher_direction(screen,direction_choisi,font,joueur)
+    
+    
+    #Afficher le conntenu de la salle si il contient quelque chose
+    if contenu_salle and not salle_selectionnee:
+        titre=font.render("Contenu de la salle :",True, (0,0,0))
+        screen.blit(titre,(320,300))
+
+        #On va afficher la liste des objet contenu dans la salle dans l'ecran du jeu
+        pos_y=330
+        for i,element in enumerate(contenu_salle):
+            #Rectangle pour sélectionner les items
+            if i==getattr(clavier.gerer_clavier,"index_item_salle",0):
+                pygame.draw.rect(screen,(255,0,0),(315,pos_y-5,250,30),2)
+
+            #Si on a un tuple avec Gemmes et sa quantité
+            if isinstance(element,tuple):
+                nom,quantite=element
+                texte=font.render(f"{nom}:{quantite}",True,(0,0,0))
+            #Si il y a un coffre ou casier dans cette salle
+            elif isinstance(element,(Coffre, Casier, Digspot)):
+                texte=font.render(f"Conteneur:{element.__class__.__name__}",True,(0,0,0))
+            #Si la pièce est une boutique
+            elif isinstance(element,Boutique):
+                texte=font.render("C'est une boutique",True, (0,0,0))
+            #Si on a une banane, pomme
+            elif isinstance(element, str):
+                texte=font.render(element,True, (0,0,0))
+            #Si c'est le contenu c'est une pomme pièce
+            else:
+                texte=font.render(str(element),True,(0,0,0))    
+
+            #On affiche le contenu
+            screen.blit(texte,(320,pos_y))
+            pos_y += 25
     
     pygame.display.flip()

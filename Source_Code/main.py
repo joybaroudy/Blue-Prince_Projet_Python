@@ -51,19 +51,35 @@ plateau[(120,0)]="Antechamber"
 salle_selectionnee=None
 tirage_effectuee=False #Sert à dire si la tirage des salle est effectué
 direction_choisi=None
+dernier_contenu_salle=None
+derniere_salle=None #Si c'est la dernière salle explorer on affiche le contenu de cette salle
 
 #Boucle du jeu
 continuer = True
 #Etat de la partie
 etat_partie=None #Gagné ou Perdu
 while continuer:
+    pos_joueur=(joueur.x,joueur.y)
     #Gestion du clavier
-    continuer,salle_selectionnee,tirage_effectuee, direction_choisi=gerer_clavier(
-        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes, manoir)
+    continuer,salle_selectionnee,tirage_effectuee, direction_choisi,contenu_salle=gerer_clavier(
+        joueur,tirage_salle,salle_catalogue, salle_selectionnee,tirage_effectuee,direction_choisi,plateau,inventaire, portes, manoir, dernier_contenu_salle)
 
     #Affichage de l'écran
-    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi)
+    affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, salle_catalogue, images, images_salles,plateau, direction_choisi, contenu_salle=dernier_contenu_salle)
 
+    #NOuvelle position du joueur après la gestion du clavier
+    nouvelle_pos=(joueur.x,joueur.y)
+
+    #Si un tirage effectuée,  on efface l'ancienne affichage
+    if tirage_effectuee:
+        dernier_contenu_salle=None
+    #Si une nouvelle salle est généré
+    elif contenu_salle is not None:
+        dernier_contenu_salle=contenu_salle
+    #Si le joueur se déplace dans une salle existante, contenu de l'anciennne salle effacé
+    elif nouvelle_pos!=pos_joueur and nouvelle_pos in plateau:
+        dernier_contenu_salle=None
+    
     #Vérification de la partie
     if inventaire.objets_consommables["Pas"].quantite<=0:
         etat_partie="défaite"

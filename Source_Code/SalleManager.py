@@ -272,7 +272,7 @@ class SalleManager:
     
     def generer_contenu(self, salle_ID, inventaire : Inventaire, lucky_bonus=0.0):
 
-        color = self.catalogue.salle_couleur_dict(salle_ID)
+        color = self.catalogue.salle_couleur_dict.get(salle_ID)
 
         if color == "Yellow" : 
             
@@ -299,11 +299,21 @@ class SalleManager:
   
         # 3) poids des loots + bonus (Patte de lapin + Detecteur de métaux)
     
+        # 1) Base weights
         weights = self.get_item_weights(salle_ID)
 
-        
+        # 2) Apply room effects safely
         effets = EffetsSalles(salle_ID, self.catalogue)
-        weights = effets.apply_weights_effects(weights)
+        weights_mod = effets.apply_weights_effects(weights)
+
+        # ---- FIX : sécurisation contre None ----
+        if weights_mod is None:
+            print(f"[WARNING] apply_weights_effects() returned None for salle {salle_ID}")
+            weights_mod = weights
+
+        weights = weights_mod
+        # ----------------------------------------
+
 
         # éviter le bug "tous weights = 0"
         if all(v == 0 for v in weights.values()):

@@ -45,12 +45,17 @@ def pixel_to_case(x, y, cell_size=60):
 
 
 def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
-                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict,manoir:Manoir):
+                  tirage_effectuee, direction_choisi, plateau,inventaire, portes_dict,manoir:Manoir,contenu_actuel=None):
     continuer = True
-    
+    contenu_complet=None
+
     # Initialiser l'index de sélection une fois
     if not hasattr(gerer_clavier, "index_selection"):
         gerer_clavier.index_selection = 0
+
+    #Initialise l'index de sélections des items
+    if not hasattr(gerer_clavier,"index_item_salle"):
+        gerer_clavier.index_item_salle=0
 
 
     for evenement in pygame.event.get():
@@ -64,9 +69,10 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 direction = "gauche"
             elif evenement.key == pygame.K_d or evenement.key == pygame.K_RIGHT:
                 direction = "droite"
-            elif evenement.key == pygame.K_z or evenement.key == pygame.K_UP:
+            #Haut et bas uniquement si y'a aucun contenu de salle affiché
+            elif evenement.key == pygame.K_UP or (evenement.key == pygame.K_z and not contenu_actuel):
                 direction = "haut"
-            elif evenement.key == pygame.K_s or evenement.key == pygame.K_DOWN:
+            elif evenement.key == pygame.K_DOWN or (evenement.key == pygame.K_s and not contenu_actuel):
                 direction = "bas"
 
             if direction:
@@ -286,6 +292,16 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 nom_salle=salle_catalogue.salles_names_dict.get(salle_choisie,"Inconnue")
                 print(f"Salle choisie : {salle_choisie} ({nom_salle})")
 
+                #On veut affiche ce que contient cette salle
+                contenu_salle=tirage_salle.generer_contenu(salle_choisie,inventaire)
+                conteneurs_salle=tirage_salle.generer_conteneurs(salle_choisie)
+
+                #On combine les 2
+                contenu_complet=contenu_salle+conteneurs_salle
+
+                print("Contenu généré :", contenu_salle)
+                print("Conteneurs générés :", conteneurs_salle)
+                print("Contenu complet :", contenu_complet)
 
                 prix_salle = salle_catalogue.salles_price_dict.get(salle_choisie, 0)
 
@@ -345,6 +361,21 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 tirage_effectuee=False
                 direction_choisi=None
                 gerer_clavier.index_selection=0
+        
+        #Pour la sélection des items contenu dans la salle
+        
+        if evenement.type==pygame.KEYDOWN and contenu_actuel:
+            if evenement.key==pygame.K_z:
+                #Monter 
+                gerer_clavier.index_item_salle-=1
+                if gerer_clavier.index_item_salle<0:
+                    gerer_clavier.index_item_salle=len(contenu_actuel)-1
+        
+            #Descendre le rectangle
+            if evenement.key==pygame.K_s:
+                gerer_clavier.index_item_salle+=1
+                if gerer_clavier.index_item_salle>=len(contenu_actuel):
+                    gerer_clavier.index_item_salle=0
     
-    return continuer,salle_selectionnee,tirage_effectuee, direction_choisi
+    return continuer,salle_selectionnee,tirage_effectuee, direction_choisi,contenu_complet
 
