@@ -44,12 +44,12 @@ class TraitementLoot :
         return loot_restant
 
     # Prendre le loot au sol dans une salle
-
     def take_loot_from_room(cell: RoomCell, inventaire: Inventaire, screen, room_ID="ID2"):
         
         loot = cell.all_loot
         loot_restant = loot.copy()
 
+        # ID de salle pour générer le contenu des conteneurs
         if cell.room_id is not None:
             room_ID = cell.room_id
 
@@ -63,10 +63,9 @@ class TraitementLoot :
                     inventaire.ajouter_objet_consommable(nom, quantite)
                     loot_restant.remove(item)
 
-                # Nourriture stockée comme ("Pomme", 1) etc. (si tu fais ça un jour)
+                # Nourriture stockée comme ("Pomme", 1), etc.
                 elif nom in inventaire.nourritures:
                     nourriture = inventaire.nourritures[nom]
-                    # on applique gain * quantite
                     for _ in range(quantite):
                         nourriture.consommer(inventaire)
                     loot_restant.remove(item)
@@ -76,14 +75,14 @@ class TraitementLoot :
                     inventaire.debloquer_permanent(nom)
                     loot_restant.remove(item)
 
-            # --- 2) Loot au format string simple ("Pomme", "Shovel"... ) ---
+            # --- 2) Loot au format string simple ("Pomme", "Shovel", ...) ---
             elif isinstance(item, str):
                 # Consommable unique
                 if item in inventaire.objets_consommables:
                     inventaire.ajouter_objet_consommable(item, 1)
                     loot_restant.remove(item)
 
-                # Nourriture → transforme en pas
+                # Nourriture → donne des pas
                 elif item in inventaire.nourritures:
                     nourriture = inventaire.nourritures[item]
                     nourriture.consommer(inventaire)
@@ -96,10 +95,79 @@ class TraitementLoot :
 
             # --- 3) Conteneurs : Coffre / Casier / Digspot ---
             elif isinstance(item, (Coffre, Casier, Digspot)):
-                # ... (garde ici ton code actuel pour ouvrir/générer/vider les conteneurs)
-                # à la fin, quand le conteneur est vidé :
-                # loot_restant.remove(item)
-                pass
+
+                # 3.a) PREMIER T : conteneur fermé -> on l'ouvre et on génère le contenu,
+                # mais on NE ramasse PAS encore.
+                if not item.ouvert:
+                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item, inventaire, screen)
+
+                    if not doit_ouvrir:
+                        # le joueur refuse -> on laisse le conteneur au sol
+                        continue
+
+                    ouvert = item.ouvrir(inventaire)
+                    if not ouvert:
+                        print(f"Impossible d'ouvrir {type(item).__name__} (pas les bons objets).")
+                        continue
+
+                    # Générer le contenu si ce n'est pas déjà fait
+                    if not item.genere:
+                        if isinstance(item, Digspot):
+                            item.generer_contenu(room_ID, inventaire)
+                        else:
+                            item.generer_contenu(room_ID)
+                        item.genere = True
+
+                    # Afficher le contenu pour que le joueur sache ce qu'il y a dedans
+                    print(f"{type(item).__name__} ouvert. Contenu visible mais non ramassé : {item.contenu}")
+
+                    # On laisse le conteneur au sol, avec son contenu
+                    continue
+
+                # 3.b) DEUXIÈME T (et suivants) : conteneur déjà ouvert -> on ramasse le contenu
+                else:
+                    # sécurité : si jamais contenu pas généré
+                    if not item.genere:
+                        if isinstance(item, Digspot):
+                            item.generer_contenu(room_ID, inventaire)
+                        else:
+                            item.generer_contenu(room_ID)
+                        item.genere = True
+
+                    if not item.contenu:
+                        print(f"{type(item).__name__} déjà vide.")
+                        # on peut enlever le conteneur du sol s'il est définitivement vide
+                        loot_restant.remove(item)
+                        continue
+
+                    # Distribuer le contenu du conteneur
+                    for contenu in list(item.contenu):
+                        # tuples ("Pièces", 10), ("Gemmes", 2), ("Shovel", 1), ...
+                        if isinstance(contenu, tuple):
+                            nom, quantite = contenu
+
+                            if nom in inventaire.objets_consommables:
+                                inventaire.ajouter_objet_consommable(nom, quantite)
+
+                            elif nom in inventaire.nourritures:
+                                nourriture = inventaire.nourritures[nom]
+                                for _ in range(quantite):
+                                    nourriture.consommer(inventaire)
+
+                            elif nom in inventaire.objets_permanents:
+                                inventaire.debloquer_permanent(nom)
+
+                        # Nourriture en objet direct
+                        elif isinstance(contenu, Nourriture):
+                            contenu.consommer(inventaire)
+
+                        # Objet permanent direct
+                        elif isinstance(contenu, ObjetPermanent):
+                            inventaire.debloquer_permanent(contenu.nom)
+
+                    # Une fois vidé, on enlève le conteneur du sol
+                    item.contenu.clear()
+                    loot_restant.remove(item)
 
             # --- 4) Boutique ---
             elif isinstance(item, Boutique):
@@ -107,8 +175,10 @@ class TraitementLoot :
                 tshop.traitement_boutique(inventaire)
                 loot_restant.remove(item)
 
+        # Mise à jour du loot restant dans la salle
         cell.all_loot = loot_restant
         return loot_restant
+
 
 
 
