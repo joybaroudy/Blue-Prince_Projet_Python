@@ -334,33 +334,33 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 print("Conteneurs générés :", conteneurs_salle)
                 print("Contenu complet :", contenu_complet)
 
-                #Ajout automatique des gemmes dans l'inventaire
-                for element in contenu_salle:
-                    if isinstance(element,tuple):
-                        nom,quantite=element
-                        if nom in inventaire.objets_consommables:
-                            inventaire.ajouter_objet_consommable(nom,quantite)
-                            print(f"Vous avez gagné {quantite} {nom}")
+                # #Ajout automatique des gemmes dans l'inventaire
+                # for element in contenu_salle:
+                #     if isinstance(element,tuple):
+                #         nom,quantite=element
+                #         if nom in inventaire.objets_consommables:
+                #             inventaire.ajouter_objet_consommable(nom,quantite)
+                #             print(f"Vous avez gagné {quantite} {nom}")
                     
-                    #Si on en gagne qu'un seul
-                    elif isinstance(element,str):
-                        if element in inventaire.objets_consommables:
-                            inventaire.ajouter_objet_consommable(element,1)
-                            print(f"vous avez gagné 1 {element}")
+                #     #Si on en gagne qu'un seul
+                #     elif isinstance(element,str):
+                #         if element in inventaire.objets_consommables:
+                #             inventaire.ajouter_objet_consommable(element,1)
+                #             print(f"vous avez gagné 1 {element}")
                     
-                        #Si on gagne de la nourriture, on gagne des pas
-                        elif isinstance(element,str) and element in inventaire.nourritures:
-                            nourriture=inventaire.nourritures[element]
-                            nourriture.consommer(inventaire)
-                            print(f"Vous manger {element} et gagnez {nourriture.gain} pas")
+                #         #Si on gagne de la nourriture, on gagne des pas
+                #         elif isinstance(element,str) and element in inventaire.nourritures:
+                #             nourriture=inventaire.nourritures[element]
+                #             nourriture.consommer(inventaire)
+                #             print(f"Vous manger {element} et gagnez {nourriture.gain} pas")
                 
-                        #Si on gagne un objet permanent
-                        elif element in inventaire.objets_permanents:
-                            #Mettre l'objet permanent
-                            row,col=pixel_to_case(joueur.x,joueur.y)
-                            cell=manoir.grid[(col,row)]
-                            cell.loot_on_ground.append(inventaire.objets_permanents[element])
-                            print(f"L'objet permanent : {element} est au sol")
+                #         #Si on gagne un objet permanent
+                #         elif element in inventaire.objets_permanents:
+                #             #Mettre l'objet permanent
+                #             row,col=pixel_to_case(joueur.x,joueur.y)
+                #             cell=manoir.grid[(col,row)]
+                #             cell.loot_on_ground.append(inventaire.objets_permanents[element])
+                #             print(f"L'objet permanent : {element} est au sol")
 
                 prix_salle = salle_catalogue.salles_price_dict.get(salle_choisie, 0)
 

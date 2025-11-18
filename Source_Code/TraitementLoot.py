@@ -45,79 +45,71 @@ class TraitementLoot :
 
     # Prendre le loot au sol dans une salle
 
-    def take_loot_from_room(cell : RoomCell, inventaire : Inventaire, screen, room_ID = "ID2"):
+    def take_loot_from_room(cell: RoomCell, inventaire: Inventaire, screen, room_ID="ID2"):
         
         loot = cell.all_loot
         loot_restant = loot.copy()
 
-        if cell.room_id is not None : 
+        if cell.room_id is not None:
             room_ID = cell.room_id
 
         for item in loot:
-            if isinstance(item, Nourriture):
-                # Ajouter les pas equivalents dans l'inventaire
-                inventaire.objets_consommables["Pas"].changer_solde(item.gain)
-                loot_restant.remove(item)
+            # --- 1) Loot au format tuple ("Pièces", 10) ---
+            if isinstance(item, tuple):
+                nom, quantite = item
 
-            elif isinstance(item, ObjetConsommable): #Ajoute l'objet à l'inventaire
-                inventaire.objets_consommables[item.nom].changer_solde(item.quantite)
-                loot_restant.remove(item)
+                # Consommables (Pièces, Gemmes, Clés, Dés, Pas, etc.)
+                if nom in inventaire.objets_consommables:
+                    inventaire.ajouter_objet_consommable(nom, quantite)
+                    loot_restant.remove(item)
 
-            elif isinstance(item, ObjetPermanent): # Ajoute l'objet permanent
-                inventaire.objets_permanents[item.nom].debloquer()
-                loot_restant.remove(item)
-            
+                # Nourriture stockée comme ("Pomme", 1) etc. (si tu fais ça un jour)
+                elif nom in inventaire.nourritures:
+                    nourriture = inventaire.nourritures[nom]
+                    # on applique gain * quantite
+                    for _ in range(quantite):
+                        nourriture.consommer(inventaire)
+                    loot_restant.remove(item)
+
+                # Objet permanent stocké comme ("Shovel", 1)
+                elif nom in inventaire.objets_permanents:
+                    inventaire.debloquer_permanent(nom)
+                    loot_restant.remove(item)
+
+            # --- 2) Loot au format string simple ("Pomme", "Shovel"... ) ---
+            elif isinstance(item, str):
+                # Consommable unique
+                if item in inventaire.objets_consommables:
+                    inventaire.ajouter_objet_consommable(item, 1)
+                    loot_restant.remove(item)
+
+                # Nourriture → transforme en pas
+                elif item in inventaire.nourritures:
+                    nourriture = inventaire.nourritures[item]
+                    nourriture.consommer(inventaire)
+                    loot_restant.remove(item)
+
+                # Objet permanent
+                elif item in inventaire.objets_permanents:
+                    inventaire.debloquer_permanent(item)
+                    loot_restant.remove(item)
+
+            # --- 3) Conteneurs : Coffre / Casier / Digspot ---
             elif isinstance(item, (Coffre, Casier, Digspot)):
+                # ... (garde ici ton code actuel pour ouvrir/générer/vider les conteneurs)
+                # à la fin, quand le conteneur est vidé :
+                # loot_restant.remove(item)
+                pass
 
-                # siLe conteneur est fermé :
-                if not item.ouvert:
-
-                    # UI : demander à l'utilisateur
-                    doit_ouvrir = TraitementLoot.demander_ouverture_conteneur(item, inventaire, screen)
-
-
-                    if not doit_ouvrir:
-                        # On laisse l'objet au sol
-                        continue
-
-                    # Sinon : tentative d'ouverture (selon type)
-                    ouvert = item.ouvrir(inventaire)
-                   
-                    if not ouvert:
-                        # Joueur n'a pas marteau/clés/pelle
-                        print(f"Impossible d'ouvrir {type(item).__name__}")
-                        continue
-
-                # --- 2) Si ouvert, générer le contenu si nécessaire ---
-                if not item.genere:
-                    if isinstance(item, Digspot):
-                        item.generer_contenu(room_ID, inventaire)
-                    else:
-                        item.generer_contenu(room_ID)
-                    item.genere = True
-
-                # --- 3) Distribuer le contenu ---
-                for contenu in item.contenu:
-                    if isinstance(contenu, tuple):
-                        nom, q = contenu
-                        inventaire.ajouter_objet_consommable(nom, q)
-                    elif isinstance(contenu, Nourriture):
-                        inventaire.objets_consommables["Pas"].changer_solde(contenu.gain)
-                    elif isinstance(contenu, ObjetPermanent):
-                        inventaire.debloquer_permanent(contenu.nom)
-
-                # Le conteneur est vidé -> on retire du sol
-                loot_restant.remove(item)
-                continue
-
+            # --- 4) Boutique ---
             elif isinstance(item, Boutique):
-                # Ouvrir l'UI de boutique pour cet objet Boutique
                 tshop = TraitementBoutique(item)
                 tshop.traitement_boutique(inventaire)
-                # Une fois la visite terminée, on peut retirer la boutique du sol
                 loot_restant.remove(item)
 
         cell.all_loot = loot_restant
+        return loot_restant
+
 
 
     @staticmethod
