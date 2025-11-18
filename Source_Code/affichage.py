@@ -176,6 +176,16 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
     screen.blit(background, (ecran_jeu, 0))
     screen.blit(text, (ecran_jeu+20, 20))
 
+    #Si on obtient des objets permanents, on l'affiche dans l'inventaire
+    y_permanent=50
+    x_permanent=ecran_jeu+20
+
+    for nom,obj in inventaire.objets_permanents.items():
+        if obj.obtenu:
+            texte=font.render(f"{nom}",True,(0,0,0))
+            screen.blit(texte,(x_permanent+10,y_permanent))
+            y_permanent+=20
+
     entree=font.render("Salle entrée:",True,(0,0,0))
     screen.blit(entree, (ecran_jeu+20, height//2-80))
 
@@ -190,10 +200,12 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
     for i,(nom,image) in enumerate(objet):
         image=pygame.transform.scale(image, (28,28))
         y=30+i*30
-        screen.blit(image,(width-60,y))
+        screen.blit(image,(width-120,y))
         quantite_init=inventaire.objets_consommables[nom].quantite
         texte=font.render(str(quantite_init),True,(0,0,0))
-        screen.blit(texte,(width-30,y))
+        screen.blit(texte,(width-90,y))
+    
+    
 
     #Placement de la salle finale
     finale_room=pygame.transform.scale(images["Antechamber"],(60,60))
@@ -269,9 +281,6 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         #On va afficher la liste des objet contenu dans la salle dans l'ecran du jeu
         pos_y=330
         for i,element in enumerate(contenu_salle):
-            #Rectangle pour sélectionner les items
-            if i==getattr(clavier.gerer_clavier,"index_item_salle",0):
-                pygame.draw.rect(screen,(255,0,0),(315,pos_y-5,250,30),2)
 
             #Si on a un tuple avec Gemmes et sa quantité
             if isinstance(element,tuple):

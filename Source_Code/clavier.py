@@ -6,6 +6,8 @@ from TraitementBoutique import TraitementBoutique
 from EffetsSalles import EffetsSalles
 from Salles import Porte
 from Manoir import Manoir
+from Conteneurs import Casier, Coffre, Digspot
+from Boutique import Boutique
 
 def lancer_boutique_si_jaune(nom_salle, salle_catalogue, inventaire):
     """
@@ -70,10 +72,22 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
             elif evenement.key == pygame.K_d or evenement.key == pygame.K_RIGHT:
                 direction = "droite"
             #Haut et bas uniquement si y'a aucun contenu de salle affiché
-            elif evenement.key == pygame.K_UP or (evenement.key == pygame.K_z and not contenu_actuel):
+            elif evenement.key == pygame.K_UP or evenement.key == pygame.K_z:
                 direction = "haut"
-            elif evenement.key == pygame.K_DOWN or (evenement.key == pygame.K_s and not contenu_actuel):
+            elif evenement.key == pygame.K_DOWN or evenement.key == pygame.K_s:
                 direction = "bas"
+
+            elif evenement.key == pygame.K_t:
+            # Récupérer l'objet permanent
+                from TraitementLoot import TraitementLoot
+
+                # On récupère la case du joueur
+                row, col = pixel_to_case(joueur.x, joueur.y)
+
+                cell = manoir.grid[(col, row)]   # inversion obligatoire
+                TraitementLoot.take_loot_from_room(cell, inventaire)
+
+                print("Objet ramassé")
 
             if direction:
                 # position actuelle du joueur
@@ -303,6 +317,34 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 print("Conteneurs générés :", conteneurs_salle)
                 print("Contenu complet :", contenu_complet)
 
+                #Ajout automatique des gemmes dans l'inventaire
+                for element in contenu_salle:
+                    if isinstance(element,tuple):
+                        nom,quantite=element
+                        if nom in inventaire.objets_consommables:
+                            inventaire.ajouter_objet_consommable(nom,quantite)
+                            print(f"Vous avez gagné {quantite} {nom}")
+                    
+                    #Si on en gagne qu'un seul
+                    elif isinstance(element,str):
+                        if element in inventaire.objets_consommables:
+                            inventaire.ajouter_objet_consommable(element,1)
+                            print(f"vous avez gagné 1 {element}")
+                    
+                        #Si on gagne de la nourriture, on gagne des pas
+                        elif isinstance(element,str) and element in inventaire.nourritures:
+                            nourriture=inventaire.nourritures[element]
+                            nourriture.consommer(inventaire)
+                            print(f"Vous manger {element} et gagnez {nourriture.gain} pas")
+                
+                        #Si on gagne un objet permanent
+                        elif element in inventaire.objets_permanents:
+                            #Mettre l'objet permanent
+                            row,col=pixel_to_case(joueur.x,joueur.y)
+                            cell=manoir.grid[(col,row)]
+                            cell.loot_on_ground.append(inventaire.objets_permanents[element])
+                            print(f"L'objet permanent : {element} est au sol")
+
                 prix_salle = salle_catalogue.salles_price_dict.get(salle_choisie, 0)
 
                 #partie gemmes
@@ -364,7 +406,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
         
         #Pour la sélection des items contenu dans la salle
         
-        if evenement.type==pygame.KEYDOWN and contenu_actuel:
+        """if evenement.type==pygame.KEYDOWN and contenu_actuel:
             if evenement.key==pygame.K_z:
                 #Monter 
                 gerer_clavier.index_item_salle-=1
@@ -375,7 +417,8 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
             if evenement.key==pygame.K_s:
                 gerer_clavier.index_item_salle+=1
                 if gerer_clavier.index_item_salle>=len(contenu_actuel):
-                    gerer_clavier.index_item_salle=0
+                    gerer_clavier.index_item_salle=0"""
+            
     
     return continuer,salle_selectionnee,tirage_effectuee, direction_choisi,contenu_complet
 
