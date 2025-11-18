@@ -134,12 +134,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu + 60)
 
 
-                cell_coord2 = pixel_to_case(joueur.x, joueur.y)
-                row, col = cell_coord2  # row, puis col
-                cell = manoir.grid[(col, row)]  # comme partout ailleurs (inversion)
 
-                manoir.grid[(col, row)].room_id = salle_choisie        # mémoriser l'ID de la salle
-                manoir.grid[(col, row)].all_loot = contenu_complet     # tout le loot de cette salle
 
 
 
@@ -360,7 +355,7 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 #On combine les 2
                 contenu_complet=contenu_salle+conteneurs_salle
 
-
+                
 
                 print("Contenu généré :", contenu_salle)
                 print("Conteneurs générés :", conteneurs_salle)
@@ -418,8 +413,11 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     joueur.deplacement(0,1)
 
                 cell_coord2 = pixel_to_case(joueur.x, joueur.y)
-                col, row = cell_coord2
-                manoir.grid[(row,col)].all_loot = contenu_complet
+                row, col = cell_coord2  # row, puis col
+                cell = manoir.grid[(col, row)]  
+
+                manoir.grid[(col, row)].room_id = salle_choisie        # mémoriser l'ID de la salle
+                manoir.grid[(col, row)].all_loot = contenu_complet     # tout le loot de cette salle
                 
                 #Pour chaque déplacement, on décrémente d'un pas le nombre de pas
                 inventaire.objets_consommables["Pas"].quantite-=1
