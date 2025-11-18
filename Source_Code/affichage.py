@@ -2,6 +2,7 @@ import pygame
 import clavier
 from Conteneurs import Casier, Coffre, Digspot
 from Boutique import Boutique
+from Inventory import Inventaire, ObjetConsommable, ObjetPermanent, Nourriture
 
 def charger_Images_salles():
     return{ #Salle bleue
@@ -273,38 +274,72 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         afficher_direction(screen,direction_choisi,font,joueur)
     
     
-    #Afficher le conntenu de la salle si il contient quelque chose
+       # Afficher le contenu de la salle s'il contient quelque chose
     if contenu_salle and not salle_selectionnee:
-        titre=font.render("Contenu de la salle :",True, (0,0,0))
-        screen.blit(titre,(320,300))
+        titre = font.render("Contenu de la salle :", True, (0, 0, 0))
+        screen.blit(titre, (320, 300))
 
-        #On va afficher la liste des objet contenu dans la salle dans l'ecran du jeu
-        pos_y=330
-        for i,element in enumerate(contenu_salle):
+        pos_y = 330
 
-            #Si on a un tuple avec Gemmes et sa quantité
-            if isinstance(element,tuple):
-                nom,quantite=element
-                texte=font.render(f"{nom}:{quantite}",True,(0,0,0))
-            #Si il y a un coffre ou casier dans cette salle
-            elif isinstance(element,(Coffre, Casier, Digspot)):
-                texte=font.render(f"Conteneur:{element.__class__.__name__}",True,(0,0,0))
-            #Si la pièce est une boutique
-            elif isinstance(element,Boutique):
-                texte=font.render("C'est une boutique",True, (0,0,0))
-            #Si on a une banane, pomme
+        for element in contenu_salle:
+
+            # 1) Loot simple : tuples ("Pièces", 10), ("Gemmes", 2), etc.
+            if isinstance(element, tuple):
+                nom, quantite = element
+                texte = font.render(f"{nom} : {quantite}", True, (0, 0, 0))
+                screen.blit(texte, (320, pos_y))
+                pos_y += 25
+
+            # 2) Conteneurs : Coffre, Casier, Digspot
+            elif isinstance(element, (Coffre, Casier, Digspot)):
+                nom_type = element.__class__.__name__
+                etat = "ouvert" if element.ouvert else "fermé"
+                texte = font.render(f"Conteneur : {nom_type} ({etat})", True, (0, 0, 0))
+                screen.blit(texte, (320, pos_y))
+                pos_y += 25
+
+                # Si le conteneur est ouvert et que son contenu est généré,
+                # on affiche ce qu'il contient, indenté.
+                if element.ouvert and element.genere and element.contenu:
+                    for contenu in element.contenu:
+                        # cas tuple ("Pièces", 10) ou ("Shovel", 1)
+                        if isinstance(contenu, tuple):
+                            nom_c, q = contenu
+                            ligne = f"- {nom_c} : {q}"
+                        # Nourriture sous forme d'objet
+                        elif isinstance(contenu, Nourriture):
+                            ligne = f"- {contenu.nom} (+{contenu.gain} pas)"
+                        # Objet permanent sous forme d'objet
+                        elif isinstance(contenu, ObjetPermanent):
+                            ligne = f"- {contenu.nom} (permanent)"
+                        else:
+                            ligne = f"- {str(contenu)}"
+
+                        texte_contenu = font.render(ligne, True, (80, 80, 80))
+                        screen.blit(texte_contenu, (340, pos_y))
+                        pos_y += 20
+
+            # 3) Boutique dans la salle
+            elif isinstance(element, Boutique):
+                texte = font.render("Boutique disponible (appuyer sur T pour l'ouvrir)", True, (0, 0, 150))
+                screen.blit(texte, (320, pos_y))
+                pos_y += 25
+
+            # 4) Loot simple sous forme de string ("Pomme", "Shovel", etc.)
             elif isinstance(element, str):
-                texte=font.render(element,True, (0,0,0))
-            #Si c'est le contenu c'est une pomme pièce
-            else:
-                texte=font.render(str(element),True,(0,0,0))    
+                texte = font.render(element, True, (0, 0, 0))
+                screen.blit(texte, (320, pos_y))
+                pos_y += 25
 
-            #On affiche le contenu
-            screen.blit(texte,(320,pos_y))
-            pos_y += 25
+            # 5) Fallback générique
+            else:
+                texte = font.render(str(element), True, (0, 0, 0))
+                screen.blit(texte, (320, pos_y))
+                pos_y += 25
 
         # Message pour ramasser
         hint = font.render("Presser T pour ramasser", True, (0, 100, 0))
         screen.blit(hint, (320, pos_y + 20))
+
 
     pygame.display.flip()
