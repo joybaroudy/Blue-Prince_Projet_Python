@@ -46,10 +46,10 @@ class TraitementBoutique:
                     if event.key == pygame.K_ESCAPE:
                         running = False
 
-                    elif event.key == pygame.K_UP:
+                    elif event.key == pygame.K_UP or event.key == pygame.K_z:
                         selection = (selection - 1) % len(articles)
 
-                    elif event.key == pygame.K_DOWN:
+                    elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
                         selection = (selection + 1) % len(articles)
 
                     elif event.key == pygame.K_RETURN:
@@ -88,6 +88,8 @@ class TraitementBoutique:
                 f"Pièces : {nb_pieces}", True, (255, 255, 255)
             )
             screen.blit(txt_pieces, (20, 60))
+            txt=font.render("Appuyer sur Z et S pour bouger la molette et cliquer sur Fermer Boutique pour sortir",True,(255,255,255))
+            screen.blit(txt, (20, 80))
 
             # Liste des articles
             start_y = 110

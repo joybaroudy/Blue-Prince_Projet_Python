@@ -190,7 +190,7 @@ class TraitementLoot :
         """
 
         popup_width, popup_height = 500, 240
-        popup_rect = pygame.Rect(0, 0, popup_width, popup_height)
+        popup_rect = pygame.Rect(0, 0, popup_width+140, popup_height)
         popup_rect.center = (screen.get_width() // 2, screen.get_height() // 2)
         font = pygame.font.SysFont(None, 28)
 
@@ -240,6 +240,7 @@ class TraitementLoot :
 
             pygame.draw.rect(screen, (30, 30, 30), popup_rect)
             screen.blit(font.render(texte_str, True, (255, 255, 255)), (popup_rect.x + 20, popup_rect.y + 20))
+            screen.blit(font.render("Cliquer sur oui ou non avec la souris",True,(255, 255, 255)), (popup_rect.x + 40, popup_rect.y + 40))
             pygame.draw.rect(screen, (0, 150, 0), bouton_oui)
             pygame.draw.rect(screen, (150, 0, 0), bouton_non)
             screen.blit(font.render("OUI", True, (255, 255, 255)), (bouton_oui.x + 55, bouton_oui.y + 12))

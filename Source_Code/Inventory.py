@@ -8,10 +8,10 @@ class Inventaire:
     def __init__(self):
         self.objets_consommables = {
             "Pas": ObjetConsommable("Pas", 70),
-            "Pièces": ObjetConsommable("Pièces", 100),
-            "Gemmes": ObjetConsommable("Gemmes", 100),
-            "Clés": ObjetConsommable("Clés", 100),
-            "Dés": ObjetConsommable("Dés", 100)
+            "Pièces": ObjetConsommable("Pièces", 0),
+            "Gemmes": ObjetConsommable("Gemmes", 2),
+            "Clés": ObjetConsommable("Clés", 0),
+            "Dés": ObjetConsommable("Dés", 0)
         }
 
         self.objets_permanents = {

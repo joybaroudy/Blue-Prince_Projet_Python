@@ -264,10 +264,6 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         # Si c’est la salle actuellement sélectionnée, on dessine un cadre rouge
         if getattr(clavier.gerer_clavier, "index_selection", 0)==len(salle_selectionnee):
             pygame.draw.rect(screen, (255, 0, 0), (x_quitter-5, y_quitter, largeur_texte+10, hauteur_texte+10), 3)
-
-            """#On ajoute le nom des salles en dessous
-            texte_salle=font.render(f"{salle_nom}",True, (0,0,0))
-            screen.blit(texte_salle,(x, y+105))"""
     
     joueur.position_initial(screen)
     if direction_choisi:
