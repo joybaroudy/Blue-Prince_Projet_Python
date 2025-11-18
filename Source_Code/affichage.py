@@ -302,5 +302,9 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
             #On affiche le contenu
             screen.blit(texte,(320,pos_y))
             pos_y += 25
-    
+
+        # Message pour ramasser
+        hint = font.render("Presser T pour ramasser", True, (0, 100, 0))
+        screen.blit(hint, (320, pos_y + 20))
+
     pygame.display.flip()
