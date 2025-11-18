@@ -304,7 +304,37 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
             #On ajoute l'option quitter
             nb_options=len(salle_selectionnee)+1
 
-            if evenement.key==pygame.K_q:
+             #Relance le tirage en utilisant un dé
+            if evenement.key==pygame.K_r:
+                if inventaire.objets_consommables["Dés"].quantite>0:
+                    #Consomme 1 dé
+                    inventaire.objets_consommables["Dés"].quantite-=1
+                    print("Relance du tirage! 1 Dé consommé.")
+                    #Refait un tirage
+                    porte_idx=DIRECTION_TO_PORTE_INDEX[direction_choisi]
+                    ligne,colonne=pixel_to_case(joueur.x,joueur.y)
+
+                    #On récupère la case et les états de porte déjà existants
+                    cellule=manoir.grid[(colonne,ligne)]
+                    etat_porte=cellule.doorstates[porte_idx]
+
+                    #On fait un nouveau tirage
+                    tirage=tirage_salle.tirage_salles(
+                        coordonnees=[ligne,colonne],
+                        porte_index=porte_idx,
+                        case_obj=Case([ligne,colonne])
+                    )
+
+                    #On met à jour le tirage dans les états porte
+                    etat_porte.tirage_results=tirage
+                    salle_selectionnee=tirage
+                    gerer_clavier.index_selection=0 #
+
+                    print("Nouvelles salles tirées:", tirage)
+                    continue
+                else:
+                    print("Pas de dés pour relancer le tirage")
+            elif evenement.key==pygame.K_q:
                 gerer_clavier.index_selection=(gerer_clavier.index_selection-1)%nb_options
             elif evenement.key==pygame.K_d:
                 gerer_clavier.index_selection=(gerer_clavier.index_selection+1)%nb_options

@@ -220,7 +220,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
         Salle_tiree=font.render("Tirage de salles:",True,(0,0,0))
         screen.blit(Salle_tiree, (ecran_jeu+20, (height//2-80)+40))
 
-        Instruction=font.render("Q et D pour bouger la molette",True,(0,0,0))
+        Instruction=font.render("Q et D pour bouger la molette, R pour refaire le tirage",True,(0,0,0))
         screen.blit(Instruction, (ecran_jeu+20, (height//2-80)+80))
         
         pos_y=(height//2-80)+120
@@ -262,7 +262,7 @@ def affichage_interface(screen, font, joueur, inventaire, salle_selectionnee, sa
 
         # Si c’est la salle actuellement sélectionnée, on dessine un cadre rouge
         if getattr(clavier.gerer_clavier, "index_selection", 0)==len(salle_selectionnee):
-            pygame.draw.rect(screen, (255, 0, 0), (x_quitter-5, y_quitter + 5, largeur_texte+10, hauteur_texte+10), 3)
+            pygame.draw.rect(screen, (255, 0, 0), (x_quitter-5, y_quitter, largeur_texte+10, hauteur_texte+10), 3)
 
             """#On ajoute le nom des salles en dessous
             texte_salle=font.render(f"{salle_nom}",True, (0,0,0))
