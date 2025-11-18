@@ -83,13 +83,12 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 # Trouver la case du joueur
                 row, col = pixel_to_case(joueur.x, joueur.y)
                 cell = manoir.grid[(col, row)]  # inversion obligatoire
-                cell.room_id = salle_selectionnee  # ou l'ID de la salle actuelle
 
+                # Ramasser le loot de cette case
+                TraitementLoot.take_loot_from_room(cell, inventaire, screen)
 
-                # Ramasser le loot
-                manoir.grid[(col,row)].all_loot = TraitementLoot.take_loot_from_room(cell, inventaire, screen)
-                
                 print("Objet(s) ramassé (T)")
+
 
 
             if direction:
@@ -135,10 +134,13 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu + 60)
 
 
-                row, col = pixel_to_case(joueur.x, joueur.y)
-                coord = (col, row)         # Toujours (col,row)
-                cell = manoir.grid[coord]
-                cell.room_id = salle_id_actuelle
+                cell_coord2 = pixel_to_case(joueur.x, joueur.y)
+                row, col = cell_coord2  # row, puis col
+                cell = manoir.grid[(col, row)]  # comme partout ailleurs (inversion)
+
+                manoir.grid[(col, row)].room_id = salle_choisie        # mémoriser l'ID de la salle
+                manoir.grid[(col, row)].all_loot = contenu_complet     # tout le loot de cette salle
+
 
 
                 print(f"On est dans la salle{salle_catalogue.salles_names_dict[salle_id_actuelle]}")
