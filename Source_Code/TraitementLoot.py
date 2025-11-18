@@ -117,7 +117,7 @@ class TraitementLoot :
                 # Une fois la visite terminée, on peut retirer la boutique du sol
                 loot_restant.remove(item)
 
-        return loot_restant
+        cell.all_loot = loot_restant
 
 
     @staticmethod

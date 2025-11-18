@@ -135,10 +135,11 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                     new_pos = (x_actu, y_actu + 60)
 
 
-                x, y = new_pos
-                row, col = pixel_to_case(x, y)
+                row, col = pixel_to_case(joueur.x, joueur.y)
+                coord = (col, row)         # Toujours (col,row)
+                cell = manoir.grid[coord]
+                cell.room_id = salle_id_actuelle
 
-                manoir.grid[(col, row)].room_id = salle_id_actuelle 
 
                 print(f"On est dans la salle{salle_catalogue.salles_names_dict[salle_id_actuelle]}")
                 
@@ -438,7 +439,9 @@ def gerer_clavier(joueur, tirage_salle , salle_catalogue, salle_selectionnee,
                 gerer_clavier.index_item_salle+=1
                 if gerer_clavier.index_item_salle>=len(contenu_actuel):
                     gerer_clavier.index_item_salle=0"""
-            
     
+    row, col = pixel_to_case(joueur.x, joueur.y)
+
+    contenu_complet = manoir.grid[(col, row)].all_loot
     return continuer,salle_selectionnee,tirage_effectuee, direction_choisi,contenu_complet
 
